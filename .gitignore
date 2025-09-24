@@ -121,3 +121,5 @@ ehthumbs.db
 
 # Claude Code files (contains system prompts and private instructions)
 CLAUDE.md
+.claude/
+src/components/CLAUDE.md
