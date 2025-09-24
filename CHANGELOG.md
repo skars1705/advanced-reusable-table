@@ -5,6 +5,38 @@ All notable changes to the Advanced Reusable Table component will be documented 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.7] - 2024-09-24 - NPM Package Correction
+
+### 🔄 Package Namespace Correction
+
+#### Changed
+- **NPM Package Name**: Corrected from `@megha/advanced-reusable-table` to `@shaun1705/advanced-reusable-table`
+- **Handle Synchronization**: Aligned GitHub handle (`skars1705`) with NPM handle (`shaun1705`)
+- **Documentation Updates**: All installation instructions and links updated to reflect correct package name
+- **Security Enhancement**: Added Claude files to `.gitignore` for privacy protection
+
+#### Migration
+```bash
+# Uninstall old package
+npm uninstall @megha/advanced-reusable-table
+
+# Install corrected package
+npm install @shaun1705/advanced-reusable-table
+```
+
+Update import statements in your code:
+```tsx
+// Before
+import { ReusableTable } from '@megha/advanced-reusable-table';
+
+// After
+import { ReusableTable } from '@shaun1705/advanced-reusable-table';
+```
+
+**Note**: All functionality remains identical - this is purely a namespace correction.
+
+---
+
 ## [1.0.6] - 2024-09-24 - Production Ready Release
 
 ### 🎯 Production-Ready Features
@@ -175,7 +207,7 @@ The Advanced Reusable Table is being used in production by:
 
 ## Support & Links
 
-- **📦 NPM Package**: https://www.npmjs.com/package/@megha/advanced-reusable-table
+- **📦 NPM Package**: https://www.npmjs.com/package/@shaun1705/advanced-reusable-table
 - **💻 GitHub Repository**: https://github.com/skars1705/advanced-reusable-table
 - **📖 Documentation**: [./docs/](./docs/)
 - **🎮 Live Examples**: [./examples/](./examples/)
