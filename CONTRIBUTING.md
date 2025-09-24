@@ -1,297 +1,305 @@
-# Contributing to @megha/advanced-reusable-table
+# Contributing to Advanced Reusable Table
 
-Thank you for your interest in contributing to the Advanced Reusable Table! We welcome contributions from the community and are grateful for your support.
+Thank you for your interest in contributing to the Advanced Reusable Table component! This project aims to provide a powerful, accessible, and production-ready React table component for the community.
+
+## 🤝 How to Contribute
+
+We welcome contributions of all kinds:
+
+- 🐛 **Bug Reports** - Help us identify and fix issues
+- 💡 **Feature Requests** - Suggest new functionality
+- 📖 **Documentation** - Improve guides, examples, and API docs
+- 🔧 **Code Contributions** - Bug fixes, features, and optimizations
+- 🧪 **Testing** - Add test coverage and identify edge cases
+- 🎨 **Design** - UI/UX improvements and accessibility enhancements
+
+## 📋 Before You Start
+
+1. **Check existing issues** - Someone might already be working on what you have in mind
+2. **Open an issue** - Discuss your idea with maintainers before starting work
+3. **Read the docs** - Familiarize yourself with the project structure and API
 
 ## 🚀 Getting Started
 
-### Prerequisites
-
-- **Node.js**: 16.0 or higher
-- **npm**: 7.0 or higher (or **yarn**: 1.22+ or **pnpm**: 6.0+)
-- **React**: 18.0+ or 19.0+
-- **TypeScript**: 4.5+ (recommended but not required)
-
 ### Development Setup
 
-1. **Fork the repository** on GitHub
-2. **Clone your fork** locally:
-   ```bash
-   git clone https://github.com/YOUR_USERNAME/advanced-reusable-table.git
-   cd advanced-reusable-table
-   ```
+1. **Fork and Clone**
+```bash
+git clone https://github.com/YOUR_USERNAME/advanced-reusable-table.git
+cd advanced-reusable-table
+```
 
-3. **Install dependencies**:
-   ```bash
-   npm install
-   ```
+2. **Install Dependencies**
+```bash
+npm install
+```
 
-4. **Start the development server**:
-   ```bash
-   npm run dev
-   ```
+3. **Run Development Server**
+```bash
+npm run dev
+```
 
-5. **Run tests**:
-   ```bash
-   npm run test
-   ```
-
-## 🏗️ Development Workflow
+4. **Run Tests**
+```bash
+npm run test
+npm run test:coverage  # View test coverage
+```
 
 ### Project Structure
 
 ```
-src/
-├── components/          # React components
-├── types/              # TypeScript type definitions
-├── hooks/              # Custom React hooks
-├── utils/              # Utility functions
-├── themes/             # Theme definitions
-└── __tests__/          # Test files
+advanced-reusable-table/
+├── src/                    # Source code
+│   ├── components/         # React components
+│   ├── hooks/             # Custom hooks
+│   ├── types/             # TypeScript type definitions
+│   └── utils/             # Utility functions
+├── docs/                  # Documentation
+├── examples/              # Usage examples
+└── tests/                 # Test files
 ```
 
-### Available Scripts
-
-- `npm run dev` - Start development server with hot reloading
-- `npm run build` - Build the library for production
-- `npm run build:lib` - Build the library only (for distribution)
-- `npm run test` - Run tests in watch mode
-- `npm run test:run` - Run tests once
-- `npm run test:coverage` - Run tests with coverage report
-- `npm run typecheck` - Run TypeScript type checking
-
-## 📝 Contribution Guidelines
+## 💻 Development Guidelines
 
 ### Code Style
 
-We use the following tools to maintain code quality:
+- **TypeScript First** - All code should be strongly typed
+- **Functional Components** - Use hooks and functional patterns
+- **Accessibility** - WCAG 2.1 AA compliance is mandatory
+- **Performance** - Consider large dataset implications
+- **Testing** - Write tests for new features and bug fixes
 
-- **TypeScript** for type safety
-- **ESLint** for code linting
-- **Prettier** for code formatting
-- **Vitest** for testing
+### Naming Conventions
 
-### Commit Message Format
+- **Components**: PascalCase (`TableHeader`, `FilterDropdown`)
+- **Hooks**: camelCase starting with 'use' (`useTableData`, `useSelection`)
+- **Types**: PascalCase (`TableColumn`, `FilterConfig`)
+- **Files**: kebab-case (`table-header.tsx`, `use-selection.ts`)
 
-We follow the [Conventional Commits](https://www.conventionalcommits.org/) specification:
-
-```
-type(scope): description
-
-[optional body]
-
-[optional footer(s)]
-```
-
-**Types:**
-- `feat`: New feature
-- `fix`: Bug fix
-- `docs`: Documentation changes
-- `style`: Code style changes (formatting, etc.)
-- `refactor`: Code refactoring
-- `test`: Adding or updating tests
-- `chore`: Maintenance tasks
-
-**Examples:**
-```
-feat(table): add support for custom cell renderers
-fix(sorting): resolve issue with date column sorting
-docs(readme): update installation instructions
-```
-
-### Pull Request Process
-
-1. **Create a branch** for your feature/fix:
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
-
-2. **Make your changes** following our coding standards
-
-3. **Write tests** for your changes (aim for >80% coverage)
-
-4. **Update documentation** if needed
-
-5. **Run all tests** and ensure they pass:
-   ```bash
-   npm run test:run
-   npm run typecheck
-   npm run build
-   ```
-
-6. **Commit your changes** with a meaningful commit message
-
-7. **Push to your fork** and create a pull request
-
-### Pull Request Checklist
-
-Before submitting your PR, ensure:
-
-- [ ] Code follows the existing style and conventions
-- [ ] All tests pass (`npm run test:run`)
-- [ ] TypeScript compilation succeeds (`npm run typecheck`)
-- [ ] Build succeeds (`npm run build`)
-- [ ] Documentation is updated (if applicable)
-- [ ] Commit messages follow the conventional format
-- [ ] PR description clearly explains the changes
-
-## 🧪 Testing
-
-### Test Structure
-
-- **Unit tests**: Test individual functions and components
-- **Integration tests**: Test component interactions
-- **Accessibility tests**: Ensure WCAG compliance
-- **Visual regression tests**: Catch UI changes
-
-### Running Tests
+### Code Quality
 
 ```bash
-# Run all tests
+# Type checking
+npm run typecheck
+
+# Run tests
 npm run test
 
-# Run tests with coverage
-npm run test:coverage
-
-# Run tests in CI mode
-npm run test:run
+# Build library
+npm run build:lib
 ```
 
-### Writing Tests
+## 🧪 Testing Requirements
 
-We use **Vitest** and **React Testing Library**:
+### Test Coverage Expectations
 
-```tsx
+- **New Features**: Must include comprehensive tests
+- **Bug Fixes**: Must include regression tests
+- **Coverage**: Maintain >80% test coverage
+- **Accessibility**: Include a11y tests using @testing-library
+
+### Test Categories
+
+1. **Unit Tests** - Component logic and utilities
+2. **Integration Tests** - Component interactions
+3. **Accessibility Tests** - WCAG compliance
+4. **Performance Tests** - Large dataset handling
+
+### Example Test Structure
+
+```typescript
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { ReusableTable } from '../ReusableTable';
 
-test('renders table with data', () => {
-  const columns = [{ header: 'Name', accessor: 'name' }];
-  const data = [{ name: 'John Doe' }];
+describe('ReusableTable', () => {
+  it('should render table with provided data', () => {
+    const columns = [{ header: 'Name', accessor: 'name' }];
+    const data = [{ name: 'John Doe' }];
 
-  render(<ReusableTable columns={columns} data={data} />);
+    render(<ReusableTable allColumns={columns} data={data} />);
 
-  expect(screen.getByText('John Doe')).toBeInTheDocument();
+    expect(screen.getByRole('table')).toBeInTheDocument();
+    expect(screen.getByText('John Doe')).toBeInTheDocument();
+  });
+
+  it('should be accessible to screen readers', () => {
+    // Accessibility test implementation
+  });
 });
 ```
 
-## 🔍 Code Review
+## 📝 Pull Request Process
 
-All contributions go through code review. Here's what reviewers look for:
+### Before Submitting
 
-- **Functionality**: Does the code work as expected?
-- **Performance**: Is the code efficient and optimized?
-- **Accessibility**: Does it maintain WCAG 2.1 AA compliance?
-- **Testing**: Are there adequate tests with good coverage?
-- **Documentation**: Is the code well-documented?
-- **Consistency**: Does it follow project conventions?
-
-## 📖 Documentation
-
-### API Documentation
-
-When adding new features, update:
-
-- **TypeScript interfaces** with JSDoc comments
-- **README.md** with usage examples
-- **Component stories** for Storybook (if applicable)
-
-### Example Documentation
-
-```tsx
-interface TableColumn<T> {
-  /** The header text for the column */
-  header: string;
-  /** The key to access data from row objects */
-  accessor: keyof T;
-  /** Whether the column is sortable */
-  sortable?: boolean;
-}
+1. **Create Feature Branch**
+```bash
+git checkout -b feature/your-feature-name
+git checkout -b fix/issue-description
 ```
+
+2. **Run Quality Checks**
+```bash
+npm run typecheck
+npm run test
+npm run build:lib
+```
+
+3. **Update Documentation**
+- Add/update JSDoc comments
+- Update README if needed
+- Add examples for new features
+
+### PR Template
+
+**Description**
+Brief description of changes and motivation
+
+**Type of Change**
+- [ ] Bug fix
+- [ ] New feature
+- [ ] Breaking change
+- [ ] Documentation update
+
+**Testing**
+- [ ] Tests added/updated
+- [ ] All tests passing
+- [ ] Manual testing completed
+
+**Accessibility**
+- [ ] WCAG compliance verified
+- [ ] Keyboard navigation tested
+- [ ] Screen reader compatibility checked
+
+**Performance**
+- [ ] Large dataset testing completed
+- [ ] No performance regressions introduced
 
 ## 🐛 Bug Reports
 
-When reporting bugs, please include:
+### Good Bug Report Includes:
 
-1. **Clear description** of the issue
-2. **Steps to reproduce** the bug
-3. **Expected behavior**
-4. **Actual behavior**
-5. **Environment details** (React version, browser, etc.)
-6. **Minimal code example** that demonstrates the issue
+1. **Clear Title** - Summarize the issue
+2. **Environment** - React version, browser, OS
+3. **Steps to Reproduce** - Minimal reproduction steps
+4. **Expected Behavior** - What should happen
+5. **Actual Behavior** - What actually happens
+6. **Code Example** - Minimal code that reproduces the issue
 
-Use our bug report template:
+### Bug Report Template
 
 ```markdown
-## Bug Description
-A clear description of what the bug is.
-
-## Steps to Reproduce
-1. Go to '...'
-2. Click on '...'
-3. See error
-
-## Expected Behavior
-What you expected to happen.
-
-## Actual Behavior
-What actually happened.
-
-## Environment
+**Environment**
 - React version: 18.2.0
-- Browser: Chrome 91
-- OS: Windows 10
+- Browser: Chrome 118
+- OS: Windows 11
+
+**Description**
+Brief description of the bug
+
+**Steps to Reproduce**
+1. Step one
+2. Step two
+3. Bug occurs
+
+**Expected Behavior**
+Description of expected behavior
+
+**Actual Behavior**
+Description of what actually happens
+
+**Code Example**
+```tsx
+// Minimal reproduction code
 ```
 
 ## 💡 Feature Requests
 
-For feature requests, please:
+### Good Feature Request Includes:
 
-1. **Check existing issues** to avoid duplicates
-2. **Describe the use case** and problem you're solving
-3. **Provide examples** of how the feature would be used
-4. **Consider backwards compatibility**
+1. **Use Case** - Why is this needed?
+2. **Proposed Solution** - How should it work?
+3. **Alternatives** - Other approaches considered
+4. **Implementation** - Technical considerations
 
-## 🔧 Development Tips
+## 🎨 Design Guidelines
 
-### Debugging
+### Accessibility Requirements
 
-- Use **React DevTools** for component debugging
-- Use **Chrome DevTools** for performance profiling
-- Enable **strict mode** to catch potential issues
+- **WCAG 2.1 AA** compliance minimum
+- **Keyboard Navigation** - Full functionality without mouse
+- **Screen Reader** - Proper ARIA labels and roles
+- **Focus Management** - Clear visual focus indicators
+- **Color Contrast** - Minimum 4.5:1 ratio
 
-### Performance
+### Performance Guidelines
 
-- Use **React.memo** for expensive components
-- Implement **useMemo** for expensive calculations
-- Use **useCallback** for stable function references
-- Profile with React DevTools Profiler
+- **Large Datasets** - Test with 1000+ rows
+- **Memory Usage** - Avoid memory leaks
+- **Render Performance** - Minimize unnecessary re-renders
+- **Bundle Size** - Keep additions minimal
 
-### Accessibility
+## 📚 Documentation Standards
 
-- Test with **screen readers** (NVDA, JAWS, VoiceOver)
-- Ensure **keyboard navigation** works properly
-- Use **semantic HTML** elements
-- Test **color contrast** ratios
+### Code Documentation
 
-## 📞 Getting Help
+```typescript
+/**
+ * Filters table data based on provided filter configuration
+ * @param data - Array of table row data
+ * @param filters - Filter configuration array
+ * @returns Filtered data array
+ * @example
+ * ```tsx
+ * const filtered = filterData(users, [
+ *   { key: 'name', operator: 'contains', value: 'John' }
+ * ]);
+ * ```
+ */
+export function filterData<T>(data: T[], filters: FilterConfig[]): T[] {
+  // Implementation
+}
+```
 
-If you need help:
+### Example Documentation
 
-1. **Check the documentation** in the `/docs` folder
-2. **Search existing issues** on GitHub
-3. **Create a discussion** for questions
-4. **Join our community** (if applicable)
+- **Clear Use Cases** - Real-world scenarios
+- **Complete Code** - Working examples
+- **Explanations** - Why certain approaches are used
+- **Accessibility Notes** - A11y considerations
 
-## 🏆 Recognition
+## 🏷️ Release Process
 
-Contributors are recognized in:
+### Version Guidelines
 
-- **CHANGELOG.md** for each release
-- **README.md** contributors section
-- **GitHub releases** acknowledgments
+We follow [Semantic Versioning](https://semver.org/):
+- **PATCH** (1.0.1) - Bug fixes
+- **MINOR** (1.1.0) - New features, backward compatible
+- **MAJOR** (2.0.0) - Breaking changes
 
-Thank you for contributing to make this library better for everyone! 🎉
+### Release Checklist
+
+- [ ] All tests passing
+- [ ] Documentation updated
+- [ ] CHANGELOG.md updated
+- [ ] Version bumped in package.json
+- [ ] Git tag created
+- [ ] NPM package published
+- [ ] GitHub release created
+
+## 🤔 Questions?
+
+- **GitHub Issues** - Technical questions and discussions
+- **Documentation** - Check existing docs first
+- **Community** - Engage with other contributors
 
 ## 📄 License
 
-By contributing to this project, you agree that your contributions will be licensed under the MIT License.
+By contributing, you agree that your contributions will be licensed under the MIT License.
+
+---
+
+**Thank you for contributing to Advanced Reusable Table!**
+
+Your contributions help make this component better for the entire React community. Every contribution, no matter how small, is valued and appreciated.

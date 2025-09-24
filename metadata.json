@@ -1,0 +1,5 @@
+{
+  "name": "Advanced Reusable Table",
+  "description": "A React application showcasing a powerful, reusable table component with multi-column sorting and filtering capabilities, built with TypeScript and Tailwind CSS.",
+  "requestFramePermissions": []
+}

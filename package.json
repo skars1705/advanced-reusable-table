@@ -1,6 +1,6 @@
 {
   "name": "@megha/advanced-reusable-table",
-  "version": "1.0.0",
+  "version": "1.0.6",
   "description": "A powerful, customizable React table component with advanced features like sorting, filtering, grouping, and inline editing",
   "type": "module",
   "main": "dist/index.cjs",

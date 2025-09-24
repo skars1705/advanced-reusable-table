@@ -23,7 +23,7 @@ A powerful, TypeScript-first React table component that handles complex data str
 
 📱 **Performance Focused** - Optimized for large datasets (1000+ rows) with efficient rendering and memory usage
 
-## ✨ What's New in v1.0.0
+## ✨ What's New in v1.0.6
 
 🎯 **Production-Ready API** - Stable, well-tested interface with comprehensive TypeScript support
 
