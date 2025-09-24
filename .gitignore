@@ -118,3 +118,6 @@ Thumbs.db
 .Spotlight-V100
 .Trashes
 ehthumbs.db
+
+# Claude Code files (contains system prompts and private instructions)
+CLAUDE.md

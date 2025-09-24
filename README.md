@@ -1,8 +1,8 @@
-# @megha/advanced-reusable-table
+# @shaun1705/advanced-reusable-table
 
-[![npm version](https://img.shields.io/npm/v/@megha/advanced-reusable-table.svg)](https://www.npmjs.com/package/@megha/advanced-reusable-table)
-[![npm downloads](https://img.shields.io/npm/dm/@megha/advanced-reusable-table.svg)](https://www.npmjs.com/package/@megha/advanced-reusable-table)
-[![bundle size](https://img.shields.io/bundlephobia/minzip/@megha/advanced-reusable-table)](https://bundlephobia.com/package/@megha/advanced-reusable-table)
+[![npm version](https://img.shields.io/npm/v/@shaun1705/advanced-reusable-table.svg)](https://www.npmjs.com/package/@shaun1705/advanced-reusable-table)
+[![npm downloads](https://img.shields.io/npm/dm/@shaun1705/advanced-reusable-table.svg)](https://www.npmjs.com/package/@shaun1705/advanced-reusable-table)
+[![bundle size](https://img.shields.io/bundlephobia/minzip/@shaun1705/advanced-reusable-table)](https://bundlephobia.com/package/@shaun1705/advanced-reusable-table)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-18%2B|19%2B-61dafb.svg)](https://reactjs.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -98,13 +98,13 @@ Works seamlessly across desktop, tablet, and mobile devices with adaptive layout
 ## 🚀 Installation & 30-Second Quick Start
 
 ```bash
-npm install @megha/advanced-reusable-table
+npm install @shaun1705/advanced-reusable-table
 ```
 
 **Simple Example - Get running instantly:**
 
 ```tsx
-import { ReusableTable, ThemeProvider } from '@megha/advanced-reusable-table';
+import { ReusableTable, ThemeProvider } from '@shaun1705/advanced-reusable-table';
 
 const MyTable = () => {
   const columns = [
@@ -135,7 +135,7 @@ const MyTable = () => {
 **Advanced Example - Featuring v1.0.0 capabilities:**
 
 ```tsx
-import { ReusableTable, ThemeProvider, useTableSelection } from '@megha/advanced-reusable-table';
+import { ReusableTable, ThemeProvider, useTableSelection } from '@shaun1705/advanced-reusable-table';
 
 const AdvancedTable = () => {
   // New v1.0.6: Enhanced useTableSelection hook
@@ -499,7 +499,7 @@ We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md)
 
 | Resource | Link | Description |
 |----------|------|-------------|
-| **📦 NPM Package** | [npmjs.com](https://www.npmjs.com/package/@megha/advanced-reusable-table) | Install and version info |
+| **📦 NPM Package** | [npmjs.com](https://www.npmjs.com/package/@shaun1705/advanced-reusable-table) | Install and version info |
 | **💻 GitHub Repo** | [github.com](https://github.com/skars1705/advanced-reusable-table) | Source code and issues |
 | **📖 Full Documentation** | [./docs/](./docs/) | Complete API reference |
 | **🎮 Live Examples** | [./examples/](./examples/) | Interactive demos |
@@ -513,6 +513,6 @@ We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md)
 
 *Supporting modern React applications with enterprise-grade data table functionality*
 
-[⭐ Star on GitHub](https://github.com/skars1705/advanced-reusable-table) • [📦 View on NPM](https://www.npmjs.com/package/@megha/advanced-reusable-table) • [📖 Read the Docs](./docs/)
+[⭐ Star on GitHub](https://github.com/skars1705/advanced-reusable-table) • [📦 View on NPM](https://www.npmjs.com/package/@shaun1705/advanced-reusable-table) • [📖 Read the Docs](./docs/)
 
 </div>
