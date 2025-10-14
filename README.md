@@ -104,24 +104,37 @@ npm install @shaun1705/advanced-reusable-table
 **Simple Example - Get running instantly:**
 
 ```tsx
-import { ReusableTable, ThemeProvider } from '@shaun1705/advanced-reusable-table';
+import { ReusableTable, ThemeProvider, Column, ViewConfiguration } from '@shaun1705/advanced-reusable-table';
+
+// 1. Define your data type
+interface User {
+  name: string;
+  email: string;
+  isActive: boolean;
+}
 
 const MyTable = () => {
-  const columns = [
+  // 2. Define columns - each MUST have 'header' and 'accessor'
+  const columns: Column<User>[] = [
     { header: 'Name', accessor: 'name', sortable: true, filterable: true },
     { header: 'Email', accessor: 'email', filterable: true },
     { header: 'Active', accessor: 'isActive', cellType: 'toggle', editable: true }
   ];
 
-  const data = [
+  // 3. Provide data
+  const data: User[] = [
     { name: 'John Doe', email: 'john@example.com', isActive: true },
     { name: 'Jane Smith', email: 'jane@example.com', isActive: false }
   ];
 
-  const viewConfig = {
-    id: 'default', name: 'Default View',
-    visibleColumns: ['name', 'email', 'isActive'],
-    groupBy: [], sortConfig: [], filterConfig: []
+  // 4. Configure view - ALL properties are REQUIRED
+  const viewConfig: ViewConfiguration<User> = {
+    id: 'default',
+    name: 'Default View',
+    visibleColumns: ['name', 'email', 'isActive'], // MUST match column accessors
+    groupBy: [],        // Empty array if no grouping
+    sortConfig: [],     // Empty array if no default sorting
+    filterConfig: []    // Empty array if no default filters
   };
 
   return (
@@ -283,6 +296,188 @@ const userColumns: Column<User>[] = [
   }
 ];
 ```
+
+## ⚠️ Common Pitfalls & Solutions
+
+### Pitfall 1: Missing Required ViewConfig Properties
+
+**❌ Wrong:**
+```tsx
+const viewConfig = {
+  visibleColumns: ['name', 'email']  // Missing required properties!
+};
+```
+
+**✅ Correct:**
+```tsx
+const viewConfig: ViewConfiguration<User> = {
+  id: 'my-view',           // Required - unique identifier
+  name: 'My View',         // Required - display name
+  visibleColumns: ['name', 'email'],
+  groupBy: [],             // Required - empty array if no grouping
+  sortConfig: [],          // Required - empty array if no sorting
+  filterConfig: []         // Required - empty array if no filters
+};
+```
+
+**Error Message:**
+```
+[ReusableTable] "viewConfig.id" is required and must be a string.
+```
+
+---
+
+### Pitfall 2: Column Accessor Mismatch
+
+**❌ Wrong:**
+```tsx
+interface User {
+  name: string;
+  email: string;
+}
+
+const columns = [
+  { header: 'Name', accessor: 'userName' }  // 'userName' doesn't exist in User!
+];
+```
+
+**✅ Correct:**
+```tsx
+interface User {
+  name: string;
+  email: string;
+}
+
+const columns: Column<User>[] = [
+  { header: 'Name', accessor: 'name' }  // Matches User['name']
+];
+```
+
+**Error Message:**
+```
+TypeScript error: Type '"userName"' is not assignable to type '"name" | "email"'
+```
+
+---
+
+### Pitfall 3: visibleColumns References Non-Existent Column
+
+**❌ Wrong:**
+```tsx
+const allColumns = [
+  { header: 'Name', accessor: 'name' },
+  { header: 'Email', accessor: 'email' }
+];
+
+const viewConfig = {
+  visibleColumns: ['name', 'email', 'phone']  // 'phone' doesn't exist in allColumns!
+};
+```
+
+**✅ Correct:**
+```tsx
+const allColumns: Column<User>[] = [
+  { header: 'Name', accessor: 'name' },
+  { header: 'Email', accessor: 'email' }
+];
+
+const viewConfig: ViewConfiguration<User> = {
+  id: 'default',
+  name: 'Default',
+  visibleColumns: ['name', 'email'],  // Only reference existing columns
+  groupBy: [],
+  sortConfig: [],
+  filterConfig: []
+};
+```
+
+**Error Message:**
+```
+[ReusableTable] The following columns in "viewConfig.visibleColumns" do not exist in "allColumns": "phone".
+Available columns: "name", "email".
+```
+
+---
+
+### Pitfall 4: Missing Column Header or Accessor
+
+**❌ Wrong:**
+```tsx
+const columns = [
+  { accessor: 'name' },  // Missing 'header'!
+  { header: 'Email' }    // Missing 'accessor'!
+];
+```
+
+**✅ Correct:**
+```tsx
+const columns: Column<User>[] = [
+  { header: 'Name', accessor: 'name' },
+  { header: 'Email', accessor: 'email' }
+];
+```
+
+**Error Message:**
+```
+[ReusableTable] Column at index 0 is missing required "header" property (must be a string).
+[ReusableTable] Column at index 1 is missing required "accessor" property.
+```
+
+---
+
+### Pitfall 5: Data is Not an Array
+
+**❌ Wrong:**
+```tsx
+const data = null;  // or undefined, or an object
+<ReusableTable allColumns={columns} data={data} viewConfig={viewConfig} />
+```
+
+**✅ Correct:**
+```tsx
+const data: User[] = [];  // Empty array is fine
+// or
+const data: User[] = [{ name: 'John', email: 'john@example.com', isActive: true }];
+
+<ReusableTable allColumns={columns} data={data} viewConfig={viewConfig} />
+```
+
+**Error Message:**
+```
+[ReusableTable] "data" prop must be an array. Received: object.
+Pass an empty array [] if you have no data to display.
+```
+
+---
+
+### Quick Checklist Before Using ReusableTable
+
+✅ **Column Definition:**
+- Each column has both `header` (string) and `accessor` (keyof T)
+- All accessors match properties in your data type
+- TypeScript types are properly defined
+
+✅ **View Configuration:**
+- Has all required properties: `id`, `name`, `visibleColumns`, `groupBy`, `sortConfig`, `filterConfig`
+- `visibleColumns` only references columns that exist in `allColumns`
+- Empty arrays (`[]`) are used for optional config arrays
+
+✅ **Data:**
+- Is an array (can be empty)
+- Objects in array match your TypeScript interface
+- All required properties are present
+
+✅ **Theme Provider:**
+- Component is wrapped in `<ThemeProvider theme="light">` or `<ThemeProvider theme="dark">`
+
+---
+
+### Still Having Issues?
+
+1. **Check the console** - Error messages are designed to be helpful and actionable
+2. **Review BasicTableExample.tsx** - See a complete working example in `examples/BasicTableExample.tsx`
+3. **Enable TypeScript strict mode** - Catches many issues at compile time
+4. **Open an issue** - [GitHub Issues](https://github.com/skars1705/advanced-reusable-table/issues)
 
 ## 📚 Complete Documentation
 

@@ -718,9 +718,140 @@ export const ReusableTable = <T extends object>({
   rowSelection,
 }: ReusableTableProps<T>) => {
 
+  // ==========================================
+  // PROP VALIDATION - Fail fast with clear error messages
+  // ==========================================
+
+  // Validate allColumns
+  if (!Array.isArray(allColumns)) {
+    throw new Error(
+      '[ReusableTable] "allColumns" prop must be an array. ' +
+      'Received: ' + (typeof allColumns) + '. ' +
+      'Example: [{ header: "Name", accessor: "name", sortable: true }]'
+    );
+  }
+
+  if (allColumns.length === 0) {
+    throw new Error(
+      '[ReusableTable] "allColumns" prop must contain at least one column definition. ' +
+      'Received an empty array. ' +
+      'Example: [{ header: "Name", accessor: "name", sortable: true }]'
+    );
+  }
+
+  // Validate that all columns have required properties
+  allColumns.forEach((col, index) => {
+    if (!col || typeof col !== 'object') {
+      throw new Error(
+        `[ReusableTable] Column at index ${index} is not a valid object. ` +
+        'Each column must have at minimum: { header: string, accessor: keyof T }'
+      );
+    }
+    if (!col.header || typeof col.header !== 'string') {
+      throw new Error(
+        `[ReusableTable] Column at index ${index} is missing required "header" property (must be a string). ` +
+        `Received: ${JSON.stringify(col)}`
+      );
+    }
+    if (col.accessor === undefined || col.accessor === null) {
+      throw new Error(
+        `[ReusableTable] Column at index ${index} is missing required "accessor" property. ` +
+        `Column header: "${col.header}". The accessor must match a key in your data object.`
+      );
+    }
+  });
+
+  // Validate data
+  if (!Array.isArray(data)) {
+    throw new Error(
+      '[ReusableTable] "data" prop must be an array. ' +
+      'Received: ' + (typeof data) + '. ' +
+      'Pass an empty array [] if you have no data to display.'
+    );
+  }
+
+  // Validate viewConfig
+  if (!viewConfig || typeof viewConfig !== 'object') {
+    throw new Error(
+      '[ReusableTable] "viewConfig" prop is required and must be an object. ' +
+      'Received: ' + (typeof viewConfig) + '. ' +
+      'Example: { id: "default", name: "Default View", visibleColumns: ["name"], groupBy: [], sortConfig: [], filterConfig: [] }'
+    );
+  }
+
+  if (!viewConfig.id || typeof viewConfig.id !== 'string') {
+    throw new Error(
+      '[ReusableTable] "viewConfig.id" is required and must be a string. ' +
+      'Received: ' + (typeof viewConfig.id)
+    );
+  }
+
+  if (!viewConfig.name || typeof viewConfig.name !== 'string') {
+    throw new Error(
+      '[ReusableTable] "viewConfig.name" is required and must be a string. ' +
+      'Received: ' + (typeof viewConfig.name)
+    );
+  }
+
+  if (!Array.isArray(viewConfig.visibleColumns)) {
+    throw new Error(
+      '[ReusableTable] "viewConfig.visibleColumns" must be an array of column accessors. ' +
+      'Received: ' + (typeof viewConfig.visibleColumns) + '. ' +
+      'Example: ["name", "email", "status"]'
+    );
+  }
+
+  if (viewConfig.visibleColumns.length === 0) {
+    throw new Error(
+      '[ReusableTable] "viewConfig.visibleColumns" must contain at least one column accessor. ' +
+      'Received an empty array. At least one column must be visible.'
+    );
+  }
+
+  // Validate that groupBy, sortConfig, filterConfig exist (can be empty arrays)
+  if (!Array.isArray(viewConfig.groupBy)) {
+    throw new Error(
+      '[ReusableTable] "viewConfig.groupBy" must be an array. ' +
+      'Received: ' + (typeof viewConfig.groupBy) + '. ' +
+      'Pass an empty array [] if you do not want grouping.'
+    );
+  }
+
+  if (!Array.isArray(viewConfig.sortConfig)) {
+    throw new Error(
+      '[ReusableTable] "viewConfig.sortConfig" must be an array. ' +
+      'Received: ' + (typeof viewConfig.sortConfig) + '. ' +
+      'Pass an empty array [] for no initial sorting.'
+    );
+  }
+
+  if (!Array.isArray(viewConfig.filterConfig)) {
+    throw new Error(
+      '[ReusableTable] "viewConfig.filterConfig" must be an array. ' +
+      'Received: ' + (typeof viewConfig.filterConfig) + '. ' +
+      'Pass an empty array [] for no initial filters.'
+    );
+  }
+
+  // Validate that all visibleColumns exist in allColumns
+  const columnAccessors = new Set(allColumns.map(c => c.accessor));
+  const missingColumns = viewConfig.visibleColumns.filter(key => !columnAccessors.has(key));
+
+  if (missingColumns.length > 0) {
+    throw new Error(
+      '[ReusableTable] The following columns in "viewConfig.visibleColumns" do not exist in "allColumns": ' +
+      missingColumns.map(k => `"${String(k)}"`).join(', ') + '. ' +
+      'Available columns: ' + Array.from(columnAccessors).map(k => `"${String(k)}"`).join(', ') + '. ' +
+      'Make sure all visibleColumns accessors match an accessor in your allColumns array.'
+    );
+  }
+
   const displayedColumns = useMemo(() => {
     const columnMap = new Map(allColumns.map(c => [c.accessor, c]));
-    return viewConfig.visibleColumns.map(key => columnMap.get(key)!).filter(Boolean);
+    // Map and filter in one pass - only keep columns that exist in the map
+    return viewConfig.visibleColumns
+      .map(key => columnMap.get(key))
+      .filter((col): col is Column<T> => col !== undefined);
   }, [allColumns, viewConfig.visibleColumns]);
 
   // Process row selection based on format
