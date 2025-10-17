@@ -1,6 +1,7 @@
 import React from 'react';
 import { XIcon } from './icons/XIcon';
 import { useThemeClasses } from './ThemeProvider';
+import { useStableId } from '../utils/useStableId';
 
 export interface GlobalSearchProps {
   searchTerm: string;
@@ -44,7 +45,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({
   };
   
   const variantClasses = sizeClasses[variant];
-  const searchInputId = `global-search-${Math.random().toString(36).substr(2, 9)}`;
+  const searchInputId = useStableId('global-search');
   const resultsId = showResultsCount ? `${searchInputId}-results` : undefined;
 
   return (

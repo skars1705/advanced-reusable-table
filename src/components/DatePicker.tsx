@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useThemeClasses } from './ThemeProvider';
+import { useStableId } from '../utils/useStableId';
 
 export interface DatePickerProps {
   value: string;
@@ -52,7 +53,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   const themeClasses = useThemeClasses();
 
   // Generate unique IDs
-  const datePickerId = `datepicker-${Math.random().toString(36).substr(2, 9)}`;
+  const datePickerId = useStableId('datepicker');
   const calendarId = `${datePickerId}-calendar`;
   const timePickerId = `${datePickerId}-time`;
 

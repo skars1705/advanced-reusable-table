@@ -11,6 +11,7 @@ import { FilterIcon } from './icons/FilterIcon';
 import { DatePicker } from './DatePicker';
 import { CollectionCell } from './CollectionCell';
 import { resolveCellRenderer } from '../utils/cellRenderUtils';
+import { useStableId } from '../utils/useStableId';
 
 // Enhanced row selection type that supports both old and new formats
 type RowSelectionProp<T> = 
@@ -957,7 +958,7 @@ export const ReusableTable = <T extends object>({
   const [editingCell, setEditingCell] = useState<{ rowIndex: number; columnId: keyof T } | null>(null);
   const [editValue, setEditValue] = useState<any>('');
   const [showFilters, setShowFilters] = useState(true);
-  const [showFiltersToggleId] = useState(() => `show-filters-toggle-${Math.random().toString(36).substring(2, 9)}`);
+  const showFiltersToggleId = useStableId('show-filters-toggle', viewConfig?.id);
 
   const handleExport = () => {
     downloadCSV(originalItems, displayedColumns, exportLocale, 'table-export.csv');

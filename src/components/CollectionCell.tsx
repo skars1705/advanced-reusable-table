@@ -6,9 +6,9 @@ import TraditionalRadioInput from './TraditionalRadioInput';
 import CollectionDisplay from './CollectionDisplay';
 import DropdownChipSelector from './DropdownChipSelector';
 import { PencilIcon } from './icons/PencilIcon';
-import type { 
-  CollectionConfig, 
-  CollectionOption, 
+import type {
+  CollectionConfig,
+  CollectionOption,
   CollectionValue,
   CollectionValidationResult,
   CheckboxCollectionConfig,
@@ -18,6 +18,7 @@ import type {
   CollectionType
 } from '../types';
 import { normalizeCollectionType } from '../types';
+import { generateStableId } from '../utils/generateStableId';
 
 // Collection cell props interface
 export interface CollectionCellProps<T> {
@@ -223,7 +224,7 @@ export const CollectionUtils = {
    * Generate unique ID for collection components
    */
   generateId(prefix: string = 'collection'): string {
-    return `${prefix}-${Math.random().toString(36).substring(2, 9)}`;
+    return generateStableId(prefix);
   },
 
   /**

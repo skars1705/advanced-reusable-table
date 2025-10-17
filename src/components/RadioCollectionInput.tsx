@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useRef, useCallback, useEffect } from 'react';
 import type { CollectionOption, RadioCollectionConfig } from '../types';
+import { useStableId } from '../utils/useStableId';
 
 export interface RadioCollectionInputProps {
   options: CollectionOption[];
@@ -231,14 +232,11 @@ export const RadioCollectionInput: React.FC<RadioCollectionInputProps> = ({
   // Local search state if not controlled
   const [internalSearchQuery, setInternalSearchQuery] = useState('');
   const searchDebounceRef = useRef<NodeJS.Timeout>();
-  
+
   const effectiveSearchQuery = onSearchChange ? searchQuery : internalSearchQuery;
-  
+
   // Generate unique name for radio group
-  const radioGroupName = useMemo(() => 
-    id || `radio-collection-${Math.random().toString(36).substring(2, 9)}`,
-    [id]
-  );
+  const radioGroupName = useStableId('radio-collection', id);
   
   // Filter options based on search
   const filteredOptions = useMemo(() => {

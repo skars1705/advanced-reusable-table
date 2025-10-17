@@ -674,6 +674,89 @@ Built with modern React patterns and enterprise requirements:
 - **TypeScript**: 4.5+ (recommended but not required)
 - **Node.js**: 16+ for development
 
+## 🔄 Server-Side Rendering (SSR) Support
+
+**✅ Full SSR Compatibility** - Works seamlessly with Next.js, Remix, and other SSR frameworks (v1.0.11+)
+
+### Next.js App Router
+
+The component works out-of-the-box with Next.js 13+ App Router:
+
+```tsx
+// app/users/page.tsx
+import { ReusableTable, ThemeProvider, Column } from '@shaun1705/advanced-reusable-table';
+
+interface User {
+  name: string;
+  email: string;
+}
+
+export default function UsersPage() {
+  const columns: Column<User>[] = [
+    { header: 'Name', accessor: 'name' },
+    { header: 'Email', accessor: 'email' }
+  ];
+
+  const data: User[] = [
+    { name: 'John Doe', email: 'john@example.com' }
+  ];
+
+  return (
+    <ThemeProvider theme="light">
+      <ReusableTable allColumns={columns} data={data} />
+    </ThemeProvider>
+  );
+}
+```
+
+### Next.js Pages Router
+
+Works with both SSR and SSG:
+
+```tsx
+// pages/users.tsx
+import { ReusableTable, ThemeProvider, Column } from '@shaun1705/advanced-reusable-table';
+import type { GetServerSideProps } from 'next';
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  const data = await fetchUsers(); // Your data fetching logic
+  return { props: { data } };
+};
+
+export default function UsersPage({ data }) {
+  const columns: Column<User>[] = [
+    { header: 'Name', accessor: 'name' },
+    { header: 'Email', accessor: 'email' }
+  ];
+
+  return (
+    <ThemeProvider theme="light">
+      <ReusableTable allColumns={columns} data={data} />
+    </ThemeProvider>
+  );
+}
+```
+
+### SSR Compatibility Notes
+
+- **v1.0.11+**: Full SSR support with stable ID generation (no hydration mismatches)
+- **v1.0.10 and earlier**: Required client-side only rendering (see workaround below)
+
+#### Workaround for v1.0.10 and Earlier
+
+If using v1.0.10 or earlier, use dynamic import with SSR disabled:
+
+```tsx
+import dynamic from 'next/dynamic';
+
+const ReusableTable = dynamic(
+  () => import('@shaun1705/advanced-reusable-table').then(mod => mod.ReusableTable),
+  { ssr: false }
+) as typeof import('@shaun1705/advanced-reusable-table').ReusableTable;
+```
+
+**Recommendation**: Upgrade to v1.0.11+ for full SSR support without workarounds.
+
 ## 🔄 Migration & Alternatives
 
 **Why developers are switching to this table:**

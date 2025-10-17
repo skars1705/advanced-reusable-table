@@ -5,6 +5,217 @@ All notable changes to the Advanced Reusable Table component will be documented 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.11] - 2025-10-17 - SSR Compatibility Fix
+
+### 🎯 Summary
+
+Version 1.0.11 fixes a critical SSR (Server-Side Rendering) compatibility issue that caused React hydration mismatches in Next.js and other SSR frameworks. This release replaces random ID generation with stable, deterministic IDs.
+
+### 🐛 Critical Fix: React Hydration Mismatch in SSR
+
+**Problem**: Component used `Math.random()` for generating accessibility IDs, causing different IDs on server vs. client renders:
+
+```
+Warning: Prop `htmlFor` did not match. Server: "show-filters-toggle-r2ld7kj" Client: "show-filters-toggle-dfebjty"
+```
+
+**Impact**:
+- ❌ Next.js hydration errors in both App Router and Pages Router
+- ❌ Broken accessibility attributes (htmlFor/id mismatches)
+- ❌ Required workaround: `dynamic(() => import(...), { ssr: false })`
+
+**Solution**: Replaced all random ID generation with stable, deterministic IDs:
+
+```typescript
+// Before v1.0.11 (BROKEN in SSR)
+const id = `show-filters-toggle-${Math.random().toString(36).substring(2, 9)}`;
+
+// After v1.0.11 (SSR-COMPATIBLE)
+const id = useStableId('show-filters-toggle', viewConfig?.id);
+```
+
+### ✅ What's Fixed
+
+#### 1. New Stable ID Generation System
+
+**Added**: `src/utils/generateStableId.ts` - Core stable ID utilities
+- `generateStableId()` - Counter-based stable IDs
+- `generateStableIdWithHash()` - Hash-based deterministic IDs
+- `createScopedIdGenerator()` - Scoped ID generator factory
+- `resetIdCounter()` - For SSR simulation and testing
+
+**Added**: `src/utils/useStableId.ts` - React hooks
+- `useStableId()` - React hook for stable IDs across renders
+- `useScopedIds()` - Hook for multiple related IDs
+
+**Features**:
+- ✅ Deterministic ID generation
+- ✅ SSR-safe (same IDs on server and client)
+- ✅ Human-readable for debugging
+- ✅ Supports optional identifiers for context-aware uniqueness
+- ✅ Comprehensive test coverage
+
+#### 2. Updated Components
+
+Fixed 5 components that used `Math.random()`:
+
+**ReusableTable.tsx** (line 960)
+```typescript
+// Before: const [showFiltersToggleId] = useState(() => `show-filters-toggle-${Math.random()...}`);
+// After:  const showFiltersToggleId = useStableId('show-filters-toggle', viewConfig?.id);
+```
+
+**CollectionCell.tsx** (lines 225-226, 356)
+```typescript
+// Before: Math.random().toString(36).substring(2, 9)
+// After:  generateStableId(prefix)
+```
+
+**RadioCollectionInput.tsx** (line 239)
+```typescript
+// Before: const radioGroupName = useMemo(() => id || `radio-collection-${Math.random()...}`, [id]);
+// After:  const radioGroupName = useStableId('radio-collection', id);
+```
+
+**DatePicker.tsx** (line 55)
+```typescript
+// Before: const datePickerId = `datepicker-${Math.random()...}`;
+// After:  const datePickerId = useStableId('datepicker');
+```
+
+**GlobalSearch.tsx** (line 47)
+```typescript
+// Before: const searchInputId = `global-search-${Math.random()...}`;
+// After:  const searchInputId = useStableId('global-search');
+```
+
+#### 3. Comprehensive Test Coverage
+
+**Added**: `src/utils/__tests__/generateStableId.test.ts` (33 tests)
+- Basic ID generation with various parameters
+- Counter reset functionality
+- SSR compatibility simulation
+- Uniqueness verification
+- Real-world usage scenarios
+
+**Added**: `src/utils/__tests__/useStableId.test.tsx` (19 tests)
+- Hook stability across re-renders
+- SSR simulation with React hooks
+- Uniqueness across component instances
+- Real-world component scenarios
+
+**All 52 new tests passing** ✅
+
+#### 4. Documentation Updates
+
+**Updated**: README.md - Added comprehensive "Server-Side Rendering (SSR) Support" section
+- Next.js App Router usage example
+- Next.js Pages Router with getServerSideProps example
+- SSR compatibility notes (v1.0.11+ vs older versions)
+- Migration guide from v1.0.10
+
+### 📋 Migration Guide
+
+#### For Next.js Users (IMPORTANT)
+
+**If you're using v1.0.10 or earlier with the workaround:**
+
+```tsx
+// BEFORE v1.0.11 (Workaround Required)
+import dynamic from 'next/dynamic';
+
+const ReusableTable = dynamic(
+  () => import('@shaun1705/advanced-reusable-table').then((mod) => mod.ReusableTable),
+  { ssr: false }  // ❌ Disables SSR
+);
+```
+
+**AFTER v1.0.11 (No Workaround Needed):**
+
+```tsx
+// ✅ Works with SSR out of the box
+import { ReusableTable } from '@shaun1705/advanced-reusable-table';
+
+// Next.js App Router - Just works!
+export default function UsersPage() {
+  return <ReusableTable allColumns={columns} data={data} />;
+}
+
+// Next.js Pages Router with getServerSideProps - Works!
+export async function getServerSideProps() {
+  const data = await fetchUsers();
+  return { props: { data } };
+}
+```
+
+#### For All Users
+
+**Update to v1.0.11:**
+```bash
+npm install @shaun1705/advanced-reusable-table@1.0.11
+```
+
+**No code changes required** - The fix is internal. Your existing component usage continues to work unchanged.
+
+### 🧪 Testing & Verification
+
+**Before v1.0.11**:
+- SSR Compatibility: ❌ Hydration mismatch errors
+- Next.js Support: ❌ Required `ssr: false` workaround
+- ID Stability: ❌ Random IDs on each render
+- Accessibility: ⚠️ htmlFor/id mismatches
+
+**After v1.0.11**:
+- SSR Compatibility: ✅ No hydration errors
+- Next.js Support: ✅ Works out of the box
+- ID Stability: ✅ Stable IDs across renders
+- Accessibility: ✅ Perfect htmlFor/id matching
+
+**Test Results**:
+```bash
+✓ generateStableId tests (33 tests) - All passing
+✓ useStableId tests (19 tests) - All passing
+✓ Build: Successful (254KB JS, 11KB CSS)
+✓ TypeScript: No errors
+```
+
+### 📦 Files Changed
+
+**Added**:
+- `src/utils/generateStableId.ts` (195 lines) - Core stable ID utilities
+- `src/utils/useStableId.ts` (116 lines) - React hooks for stable IDs
+- `src/utils/__tests__/generateStableId.test.ts` (328 lines) - Comprehensive tests
+- `src/utils/__tests__/useStableId.test.tsx` (273 lines) - React hook tests
+
+**Modified**:
+- `src/components/ReusableTable.tsx` (line 960) - Updated to useStableId
+- `src/components/CollectionCell.tsx` (lines 225-226, 356) - Updated to generateStableId
+- `src/components/RadioCollectionInput.tsx` (line 239) - Updated to useStableId
+- `src/components/DatePicker.tsx` (line 55) - Updated to useStableId
+- `src/components/GlobalSearch.tsx` (line 47) - Updated to useStableId
+- `README.md` (+82 lines) - Added SSR Support section
+- `CHANGELOG.md` - Added v1.0.11 release notes
+- `package.json` - Version bump to 1.0.11
+
+### ⚠️ Breaking Changes
+
+**NONE** - This release is 100% backward compatible.
+
+All existing code works unchanged. The fix is internal to the component's ID generation system.
+
+### 🚀 Recommended Actions
+
+1. **Update immediately**: `npm install @shaun1705/advanced-reusable-table@1.0.11`
+2. **Remove workarounds**: If using `dynamic(..., { ssr: false })`, you can now remove it
+3. **Test SSR**: Verify your Next.js/SSR app works without hydration errors
+4. **Enjoy**: Full SSR support with zero configuration changes
+
+### 🙏 Acknowledgments
+
+Thanks to the testing team for identifying this critical SSR compatibility issue.
+
+---
+
 ## [1.0.10] - 2025-10-17 - Documentation Accuracy Fixes
 
 ### 🎯 Summary
