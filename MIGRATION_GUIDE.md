@@ -1,22 +1,25 @@
-# Migration Guide: v1.0.7 → v1.0.8
+# Migration Guide: v1.0.8 → v1.0.9+
 
 ## Overview
 
-Version 1.0.8 fixes critical issues identified in testing and improves the developer experience. This guide will help you migrate from previous versions.
+Version 1.0.9 includes documentation fixes and improvements identified by the testing team. Version 1.0.10 will be the recommended production release with all documentation accurate and complete. This guide helps you migrate from previous versions.
 
-## 🎯 What's Fixed in v1.0.8
+## 🎯 What's Fixed in v1.0.9+
 
-### ✅ Critical Fixes
-1. **viewConfig now optional** - Component works without explicit viewConfig (auto-generates defaults)
-2. **Improved TypeScript inference** - No more type assertions needed for column accessors
-3. **Accurate documentation** - All non-existent props removed from docs
-4. **Better error messages** - Clear, actionable validation messages
+### ✅ Critical Fixes in v1.0.9+
+1. **Documentation accuracy** - README now correctly shows `viewConfig` as optional
+2. **ViewConfiguration properties** - All properties correctly documented as optional
+3. **useTableSelection hook** - Documentation now shows correct API with required arguments
+4. **Version headers** - README correctly shows v1.0.9
+5. **Added minimal usage example** - Shows simplest possible usage without viewConfig
 
-### 🔄 API Changes
+### 🔄 API Changes (from v1.0.8)
 
-#### viewConfig is Now Optional
+**No breaking changes!** v1.0.9 only fixes documentation to match the implementation that was already working in v1.0.8.
 
-**Before (v1.0.7):**
+#### viewConfig is Optional (Already Working in v1.0.8, Now Documented Correctly)
+
+**Before v1.0.8:**
 ```typescript
 // This would fail with "Property 'viewConfig' is missing"
 <ReusableTable
@@ -25,22 +28,21 @@ Version 1.0.8 fixes critical issues identified in testing and improves the devel
 />
 ```
 
-**After (v1.0.8):**
+**After v1.0.8+ (including v1.0.9):**
 ```typescript
-// ✅ This now works - auto-generates default viewConfig
+// ✅ This works - auto-generates default viewConfig
 <ReusableTable
   allColumns={columns}
   data={data}
 />
 
-// ✅ Or provide partial viewConfig
+// ✅ Or provide partial viewConfig (all properties optional)
 <ReusableTable
   allColumns={columns}
   data={data}
   viewConfig={{
-    id: 'my-view',
     visibleColumns: ['name', 'email']
-    // Other fields auto-filled with defaults
+    // All other properties auto-filled with defaults
   }}
 />
 
@@ -58,6 +60,8 @@ Version 1.0.8 fixes critical issues identified in testing and improves the devel
   }}
 />
 ```
+
+**What's New in v1.0.9:** The README now correctly documents that `viewConfig` is optional (it was already working in v1.0.8, but the documentation incorrectly said it was required).
 
 #### Improved TypeScript Type Inference
 
@@ -106,12 +110,14 @@ const viewConfig: ViewConfiguration<User> = {
 ### Step 1: Update Package
 
 ```bash
-npm install @shaun1705/advanced-reusable-table@1.0.8
+npm install @shaun1705/advanced-reusable-table@latest
+# or specifically
+npm install @shaun1705/advanced-reusable-table@1.0.9
 ```
 
 ### Step 2: Update Your Code (Optional)
 
-The great news is that **v1.0.8 is 100% backward compatible**. Your existing code will continue to work without changes.
+The great news is that **v1.0.9 is 100% backward compatible with v1.0.8**. Your existing code will continue to work without changes.
 
 However, you can optionally simplify your code:
 
@@ -282,7 +288,7 @@ const columns: Column<User>[] = [
 
 1. **Update the package:**
    ```bash
-   npm install @shaun1705/advanced-reusable-table@1.0.8
+   npm install @shaun1705/advanced-reusable-table@latest
    ```
 
 2. **Run TypeScript compilation:**
@@ -291,8 +297,8 @@ const columns: Column<User>[] = [
    ```
 
 3. **Check for any errors:**
-   - Look for "Property 'viewConfig' is missing" errors (these are now fixed)
-   - Look for accessor-related type errors (these should have better messages)
+   - Look for accessor-related type errors
+   - Verify viewConfig shows as optional in IntelliSense
 
 4. **Run your application:**
    ```bash
@@ -300,8 +306,8 @@ const columns: Column<User>[] = [
    ```
 
 5. **Check the console:**
-   - Look for the warning about auto-generated viewConfig
-   - Add explicit viewConfig if you see the warning
+   - Look for the warning about auto-generated viewConfig (development only)
+   - Consider adding explicit viewConfig for production use
 
 ## 🎯 Recommended Best Practices
 
@@ -335,11 +341,11 @@ const viewConfig: ViewConfiguration<User> = {
 
 ## 🚀 Next Steps
 
-1. ✅ Update to v1.0.8
+1. ✅ Update to v1.0.9 or later
 2. ✅ Run tests to ensure everything works
-3. ✅ Remove unnecessary type assertions (optional)
+3. ✅ Review updated README documentation
 4. ✅ Add explicit viewConfig for production code (recommended)
-5. ✅ Enjoy better TypeScript autocomplete!
+5. ✅ Enjoy accurate documentation and better developer experience!
 
 ## 💬 Need Help?
 
@@ -349,4 +355,4 @@ const viewConfig: ViewConfiguration<User> = {
 
 ---
 
-**Summary:** v1.0.8 is a **non-breaking update** that improves the developer experience while maintaining 100% backward compatibility. All existing code continues to work, and you can optionally simplify your code by removing type assertions and making viewConfig optional for prototypes.
+**Summary:** v1.0.9 is a **documentation-fix update** with no code changes. It corrects documentation to accurately reflect the API that was already working in v1.0.8. Version 1.0.10 will be the recommended production release with all fixes complete. All existing code continues to work, and you can optionally simplify your code by making viewConfig optional for prototypes.

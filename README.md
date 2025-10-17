@@ -23,7 +23,7 @@ A powerful, TypeScript-first React table component that handles complex data str
 
 📱 **Performance Focused** - Optimized for large datasets (1000+ rows) with efficient rendering and memory usage
 
-## ✨ What's New in v1.0.8
+## ✨ What's New in v1.0.9
 
 🎯 **Production-Ready API** - Stable, well-tested interface with comprehensive TypeScript support
 
@@ -111,7 +111,40 @@ Works seamlessly across desktop, tablet, and mobile devices with adaptive layout
 npm install @shaun1705/advanced-reusable-table
 ```
 
-### Basic Example - Get running instantly:
+### Minimal Example - Simplest possible usage:
+
+```tsx
+import { ReusableTable, ThemeProvider, Column } from '@shaun1705/advanced-reusable-table';
+
+interface User {
+  name: string;
+  email: string;
+}
+
+const MinimalTable = () => {
+  const columns: Column<User>[] = [
+    { header: 'Name', accessor: 'name' },
+    { header: 'Email', accessor: 'email' }
+  ];
+
+  const data: User[] = [
+    { name: 'John Doe', email: 'john@example.com' },
+    { name: 'Jane Smith', email: 'jane@example.com' }
+  ];
+
+  return (
+    <ThemeProvider theme="light">
+      <ReusableTable allColumns={columns} data={data} />
+    </ThemeProvider>
+  );
+};
+```
+
+**That's it!** No `viewConfig` required - the component auto-generates sensible defaults.
+
+---
+
+### Basic Example - With viewConfig for more control:
 
 ```tsx
 import { ReusableTable, ThemeProvider, Column, ViewConfiguration } from '@shaun1705/advanced-reusable-table';
@@ -177,8 +210,16 @@ interface Developer {
 }
 
 const AdvancedTable = () => {
-  // Row selection hook
-  const { selectedRows, setSelectedRows } = useTableSelection<Developer>();
+  const data: Developer[] = [
+    { name: 'Alex Chen', skills: ['react', 'vue'], department: 'Engineering' },
+    { name: 'Sarah Wilson', skills: ['angular'], department: 'Design' }
+  ];
+
+  // Row selection hook - requires data and mode arguments
+  const selection = useTableSelection<Developer>({
+    data: data,
+    mode: 'multiple'
+  });
 
   const columns: Column<Developer>[] = [
     {
@@ -211,16 +252,13 @@ const AdvancedTable = () => {
     }
   ];
 
-  const data: Developer[] = [
-    { name: 'Alex Chen', skills: ['react', 'vue'], department: 'Engineering' },
-    { name: 'Sarah Wilson', skills: ['angular'], department: 'Design' }
-  ];
-
   // Row selection configuration
   const rowSelection = {
     enabled: true,
     mode: 'multiple' as const,
-    onSelectionChange: setSelectedRows
+    onSelectionChange: (rows: Developer[]) => {
+      console.log('Selected rows:', rows);
+    }
   };
 
   // View configuration - controls all table behavior
@@ -236,7 +274,7 @@ const AdvancedTable = () => {
   return (
     <ThemeProvider theme="dark">
       <div>
-        <p>Selected: {selectedRows.size} developers</p>
+        <p>Selected: {selection.selectedCount} developers</p>
         <ReusableTable
           allColumns={columns}
           data={data}
@@ -262,7 +300,7 @@ The `ReusableTable` component accepts only 5 props:
 interface ReusableTableProps<T extends object> {
   allColumns: Column<T>[];           // All column definitions
   data: T[];                         // Data to display
-  viewConfig: ViewConfiguration<T>;  // View configuration
+  viewConfig?: ViewConfiguration<T>; // View configuration (optional, auto-generated if not provided)
   onUpdateData?: (rowIndex: number, columnId: keyof T, value: any) => void;  // Edit callback
   rowSelection?: RowSelectionProp<T>; // Row selection config (optional)
 }
@@ -306,20 +344,22 @@ interface Column<T> {
 
 Array of data objects matching your type definition. Can be empty array `[]`.
 
-#### `viewConfig` (required)
+#### `viewConfig` (optional, auto-generated if not provided)
 
-Configuration that controls which columns are visible, sorting, filtering, and grouping:
+Configuration that controls which columns are visible, sorting, filtering, and grouping. If not provided, the component will auto-generate a default view configuration showing all columns.
 
 ```typescript
 interface ViewConfiguration<T> {
-  id: string;                        // Unique view identifier (required)
-  name: string;                      // Display name (required)
-  visibleColumns: (keyof T)[];       // Which columns to show (required)
-  groupBy: (keyof T)[];              // Columns to group by (required, can be empty)
-  sortConfig: SortConfig<T>[];       // Initial sorting (required, can be empty)
-  filterConfig: FilterConfig<T>[];   // Initial filters (required, can be empty)
+  id?: string;                        // Unique view identifier (optional)
+  name?: string;                      // Display name (optional)
+  visibleColumns?: (keyof T)[];       // Which columns to show (optional, defaults to all columns)
+  groupBy?: (keyof T)[];              // Columns to group by (optional, defaults to empty array)
+  sortConfig?: SortConfig<T>[];       // Initial sorting (optional, defaults to empty array)
+  filterConfig?: FilterConfig<T>[];   // Initial filters (optional, defaults to empty array)
 }
 ```
+
+**Note:** All properties of `ViewConfiguration` are optional. If you omit `viewConfig` entirely, the component uses sensible defaults with all columns visible.
 
 #### `onUpdateData` (optional)
 
