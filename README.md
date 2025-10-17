@@ -23,7 +23,7 @@ A powerful, TypeScript-first React table component that handles complex data str
 
 📱 **Performance Focused** - Optimized for large datasets (1000+ rows) with efficient rendering and memory usage
 
-## ✨ What's New in v1.0.6
+## ✨ What's New in v1.0.8
 
 🎯 **Production-Ready API** - Stable, well-tested interface with comprehensive TypeScript support
 
@@ -50,7 +50,13 @@ Same column, different content types based on row data. Perfect for mixed conten
   accessor: 'comments',
   renderCell: (context) => {
     if (Array.isArray(context.value)) {
-      return { type: 'collection', collectionConfig: { type: 'checkbox', options: [...] } };
+      return {
+        type: 'collection',
+        collectionConfig: {
+          type: 'checkbox',
+          options: context.value.map(v => ({ value: v, label: v }))
+        }
+      };
     }
     if (typeof context.value === 'string') {
       return { type: 'text', content: `💬 ${context.value}` };
@@ -72,22 +78,26 @@ Handle multiple values elegantly with sophisticated UI controls - checkboxes, ra
     type: 'checkbox',
     inputMode: 'chips',        // Modern chip-based input
     viewDisplayMode: 'inline', // Show chips directly in cell
-    options: permissionOptions
+    options: [
+      { value: 'read', label: 'View', description: 'Can view data' },
+      { value: 'write', label: 'Edit', description: 'Can modify data' },
+      { value: 'admin', label: 'Admin', description: 'Full control' }
+    ]
   }
 }
 ```
 
 ### 🎯 **Type-Aware Filtering**
-Advanced filtering system with operators specific to each data type - text contains/equals, number ranges, date comparisons, and collection matching.
+Advanced filtering system with operators specific to each data type - text contains/equals, number ranges, date comparisons, and collection matching. All configured through `viewConfig.filterConfig`.
 
 ### 🔧 **Inline Editing**
-Double-click cells to edit with full validation, supporting text, numbers, dates, toggles, and collection modifications.
+Double-click cells to edit with full validation, supporting text, numbers, dates, toggles, and collection modifications. Updates handled through the `onUpdateData` callback.
 
 ### ♿ **Accessibility First**
 WCAG 2.1 AA compliant with comprehensive keyboard navigation, screen reader support, focus management, and ARIA attributes.
 
 ### 🎨 **Fully Themeable**
-CSS custom properties with built-in light/dark mode support. Seamlessly integrate with your design system or use provided themes.
+CSS custom properties with built-in light/dark mode support. Seamlessly integrate with your design system or use provided themes via `ThemeProvider`.
 
 ### ⚡ **Performance Optimized**
 Built for large datasets with intelligent rendering, memoization, virtual scrolling support, and optimized re-renders.
@@ -95,13 +105,13 @@ Built for large datasets with intelligent rendering, memoization, virtual scroll
 ### 📱 **Responsive Design**
 Works seamlessly across desktop, tablet, and mobile devices with adaptive layouts and touch-friendly interactions.
 
-## 🚀 Installation & 30-Second Quick Start
+## 🚀 Installation & Quick Start
 
 ```bash
 npm install @shaun1705/advanced-reusable-table
 ```
 
-**Simple Example - Get running instantly:**
+### Basic Example - Get running instantly:
 
 ```tsx
 import { ReusableTable, ThemeProvider, Column, ViewConfiguration } from '@shaun1705/advanced-reusable-table';
@@ -127,38 +137,54 @@ const MyTable = () => {
     { name: 'Jane Smith', email: 'jane@example.com', isActive: false }
   ];
 
-  // 4. Configure view - ALL properties are REQUIRED
+  // 4. Configure view - defines visible columns, sorting, filtering, grouping
   const viewConfig: ViewConfiguration<User> = {
     id: 'default',
     name: 'Default View',
-    visibleColumns: ['name', 'email', 'isActive'], // MUST match column accessors
-    groupBy: [],        // Empty array if no grouping
-    sortConfig: [],     // Empty array if no default sorting
-    filterConfig: []    // Empty array if no default filters
+    visibleColumns: ['name', 'email', 'isActive'],
+    groupBy: [],        // Column keys to group by
+    sortConfig: [],     // Initial sort configuration
+    filterConfig: []    // Initial filter configuration
   };
 
   return (
     <ThemeProvider theme="light">
-      <ReusableTable allColumns={columns} data={data} viewConfig={viewConfig} />
+      <ReusableTable
+        allColumns={columns}
+        data={data}
+        viewConfig={viewConfig}
+      />
     </ThemeProvider>
   );
 };
 ```
 
-**Advanced Example - Featuring v1.0.0 capabilities:**
+### Advanced Example - Full feature showcase:
 
 ```tsx
-import { ReusableTable, ThemeProvider, useTableSelection } from '@shaun1705/advanced-reusable-table';
+import {
+  ReusableTable,
+  ThemeProvider,
+  useTableSelection,
+  Column,
+  ViewConfiguration
+} from '@shaun1705/advanced-reusable-table';
+
+interface Developer {
+  name: string;
+  skills: string[];
+  department: string;
+}
 
 const AdvancedTable = () => {
-  // New v1.0.6: Enhanced useTableSelection hook
-  const { selectedRows, setSelectedRows } = useTableSelection();
+  // Row selection hook
+  const { selectedRows, setSelectedRows } = useTableSelection<Developer>();
 
-  const columns = [
+  const columns: Column<Developer>[] = [
     {
-      header: 'User',
+      header: 'Developer',
       accessor: 'name',
-      filterType: 'text', // New v1.0.6: Explicit filter type
+      filterType: 'text',
       sortable: true,
       filterable: true
     },
@@ -167,7 +193,7 @@ const AdvancedTable = () => {
       accessor: 'skills',
       dataType: 'collection',
       collectionConfig: {
-        type: 'chips', // New v1.0.6: Friendly alias for 'chip'
+        type: 'chips',
         inputMode: 'chips',
         viewDisplayMode: 'inline',
         options: [
@@ -180,35 +206,37 @@ const AdvancedTable = () => {
     {
       header: 'Department',
       accessor: 'department',
-      filterType: 'select', // New v1.0.6: Select-based filtering
+      filterType: 'select',
       groupable: true
     }
   ];
 
-  const data = [
+  const data: Developer[] = [
     { name: 'Alex Chen', skills: ['react', 'vue'], department: 'Engineering' },
     { name: 'Sarah Wilson', skills: ['angular'], department: 'Design' }
   ];
 
-  // New v1.0.6: Simplified row selection config
-  const rowSelection = { 
-    enabled: true, 
+  // Row selection configuration
+  const rowSelection = {
+    enabled: true,
     mode: 'multiple' as const,
-    onSelectionChange: setSelectedRows 
+    onSelectionChange: setSelectedRows
   };
 
-  const viewConfig = {
-    id: 'advanced', name: 'Advanced View',
+  // View configuration - controls all table behavior
+  const viewConfig: ViewConfiguration<Developer> = {
+    id: 'advanced',
+    name: 'Advanced View',
     visibleColumns: ['name', 'skills', 'department'],
-    groupBy: ['department'], // Group by department
+    groupBy: ['department'],
     sortConfig: [{ key: 'name', direction: 'ascending' as const }],
     filterConfig: []
   };
 
   return (
-    <ThemeProvider theme="dark"> {/* New v1.0.6: String theme support */}
+    <ThemeProvider theme="dark">
       <div>
-        <p>Selected: {selectedRows.size} users</p>
+        <p>Selected: {selectedRows.size} developers</p>
         <ReusableTable
           allColumns={columns}
           data={data}
@@ -224,16 +252,117 @@ const AdvancedTable = () => {
 };
 ```
 
+## 📋 Component API
+
+### Core Props
+
+The `ReusableTable` component accepts only 5 props:
+
+```typescript
+interface ReusableTableProps<T extends object> {
+  allColumns: Column<T>[];           // All column definitions
+  data: T[];                         // Data to display
+  viewConfig: ViewConfiguration<T>;  // View configuration
+  onUpdateData?: (rowIndex: number, columnId: keyof T, value: any) => void;  // Edit callback
+  rowSelection?: RowSelectionProp<T>; // Row selection config (optional)
+}
+```
+
+#### `allColumns` (required)
+
+Array of column definitions. Each column configures how data is displayed and interacted with:
+
+```typescript
+interface Column<T> {
+  header: string;                    // Column header text (required)
+  accessor: keyof T;                 // Data key (required)
+
+  // Display configuration
+  dataType?: 'string' | 'number' | 'currency' | 'date' | 'datetime' | 'collection';
+  align?: 'left' | 'center' | 'right';
+  cell?: (item: T) => React.ReactNode;  // Custom cell renderer
+
+  // Feature toggles
+  sortable?: boolean;                // Enable sorting
+  filterable?: boolean;              // Enable filtering
+  groupable?: boolean;               // Enable grouping
+  editable?: boolean;                // Enable inline editing
+
+  // Filter configuration
+  filterType?: 'text' | 'select' | 'date' | 'number' | 'boolean' | 'collection';
+
+  // Type-specific options
+  cellType?: 'checkbox' | 'toggle';
+  currencyOptions?: { locale: string; currency: string };
+  dateOptions?: { locale: string; dateStyle?: string; timeStyle?: string };
+  collectionConfig?: CollectionConfig;
+
+  // Dynamic rendering
+  renderCell?: (context: CellRenderContext<T>) => CellRenderDecision | React.ReactNode;
+}
+```
+
+#### `data` (required)
+
+Array of data objects matching your type definition. Can be empty array `[]`.
+
+#### `viewConfig` (required)
+
+Configuration that controls which columns are visible, sorting, filtering, and grouping:
+
+```typescript
+interface ViewConfiguration<T> {
+  id: string;                        // Unique view identifier (required)
+  name: string;                      // Display name (required)
+  visibleColumns: (keyof T)[];       // Which columns to show (required)
+  groupBy: (keyof T)[];              // Columns to group by (required, can be empty)
+  sortConfig: SortConfig<T>[];       // Initial sorting (required, can be empty)
+  filterConfig: FilterConfig<T>[];   // Initial filters (required, can be empty)
+}
+```
+
+#### `onUpdateData` (optional)
+
+Callback for inline editing:
+
+```typescript
+onUpdateData?: (rowIndex: number, columnId: keyof T, value: any) => void
+```
+
+#### `rowSelection` (optional)
+
+Row selection configuration:
+
+```typescript
+// New format (recommended)
+interface RowSelectionConfig {
+  enabled: boolean;
+  mode: 'single' | 'multiple' | 'none';
+  maxSelections?: number;
+  onSelectionChange?: (selectedRows: any[]) => void;
+}
+
+// Usage
+const rowSelection = {
+  enabled: true,
+  mode: 'multiple',
+  onSelectionChange: (rows) => console.log('Selected:', rows)
+};
+```
+
 ## 🎯 Real-World Examples
 
-### ProcessPlans Demo - Dynamic Content Types
-```tsx
+### Dynamic Content Types with renderCell
+
+The `renderCell` function enables the same column to display different content types based on row data:
+
+```typescript
 {
   header: 'Comments',
   accessor: 'comments',
   renderCell: (context) => {
     const { value, row } = context;
-    
+
     // Array of process steps - show as checkboxes
     if (Array.isArray(value) && value.length > 0) {
       return {
@@ -246,12 +375,12 @@ const AdvancedTable = () => {
         }
       };
     }
-    
+
     // Text comment - show as editable text
     if (typeof value === 'string' && value.trim()) {
       return { type: 'text', content: `💬 ${value}` };
     }
-    
+
     // Empty state
     return { type: 'text', content: 'No comments' };
   }
@@ -259,7 +388,8 @@ const AdvancedTable = () => {
 ```
 
 ### User Management with Permissions
-```tsx
+
+```typescript
 const userColumns: Column<User>[] = [
   {
     header: 'User',
@@ -297,6 +427,33 @@ const userColumns: Column<User>[] = [
 ];
 ```
 
+### Configuring Sorting and Filtering via viewConfig
+
+All table features are configured through `viewConfig`, not props:
+
+```typescript
+const viewConfig: ViewConfiguration<Product> = {
+  id: 'products-view',
+  name: 'Products',
+  visibleColumns: ['name', 'price', 'category', 'inStock'],
+
+  // Group by category
+  groupBy: ['category'],
+
+  // Sort by price descending, then name ascending
+  sortConfig: [
+    { key: 'price', direction: 'descending' },
+    { key: 'name', direction: 'ascending' }
+  ],
+
+  // Filter to show only in-stock items over $100
+  filterConfig: [
+    { key: 'inStock', operator: 'equals', value: 'true' },
+    { key: 'price', operator: 'gte', value: '100' }
+  ]
+};
+```
+
 ## ⚠️ Common Pitfalls & Solutions
 
 ### Pitfall 1: Missing Required ViewConfig Properties
@@ -320,13 +477,6 @@ const viewConfig: ViewConfiguration<User> = {
 };
 ```
 
-**Error Message:**
-```
-[ReusableTable] "viewConfig.id" is required and must be a string.
-```
-
----
-
 ### Pitfall 2: Column Accessor Mismatch
 
 **❌ Wrong:**
@@ -343,22 +493,10 @@ const columns = [
 
 **✅ Correct:**
 ```tsx
-interface User {
-  name: string;
-  email: string;
-}
-
 const columns: Column<User>[] = [
   { header: 'Name', accessor: 'name' }  // Matches User['name']
 ];
 ```
-
-**Error Message:**
-```
-TypeScript error: Type '"userName"' is not assignable to type '"name" | "email"'
-```
-
----
 
 ### Pitfall 3: visibleColumns References Non-Existent Column
 
@@ -370,17 +508,12 @@ const allColumns = [
 ];
 
 const viewConfig = {
-  visibleColumns: ['name', 'email', 'phone']  // 'phone' doesn't exist in allColumns!
+  visibleColumns: ['name', 'email', 'phone']  // 'phone' doesn't exist!
 };
 ```
 
 **✅ Correct:**
 ```tsx
-const allColumns: Column<User>[] = [
-  { header: 'Name', accessor: 'name' },
-  { header: 'Email', accessor: 'email' }
-];
-
 const viewConfig: ViewConfiguration<User> = {
   id: 'default',
   name: 'Default',
@@ -390,65 +523,6 @@ const viewConfig: ViewConfiguration<User> = {
   filterConfig: []
 };
 ```
-
-**Error Message:**
-```
-[ReusableTable] The following columns in "viewConfig.visibleColumns" do not exist in "allColumns": "phone".
-Available columns: "name", "email".
-```
-
----
-
-### Pitfall 4: Missing Column Header or Accessor
-
-**❌ Wrong:**
-```tsx
-const columns = [
-  { accessor: 'name' },  // Missing 'header'!
-  { header: 'Email' }    // Missing 'accessor'!
-];
-```
-
-**✅ Correct:**
-```tsx
-const columns: Column<User>[] = [
-  { header: 'Name', accessor: 'name' },
-  { header: 'Email', accessor: 'email' }
-];
-```
-
-**Error Message:**
-```
-[ReusableTable] Column at index 0 is missing required "header" property (must be a string).
-[ReusableTable] Column at index 1 is missing required "accessor" property.
-```
-
----
-
-### Pitfall 5: Data is Not an Array
-
-**❌ Wrong:**
-```tsx
-const data = null;  // or undefined, or an object
-<ReusableTable allColumns={columns} data={data} viewConfig={viewConfig} />
-```
-
-**✅ Correct:**
-```tsx
-const data: User[] = [];  // Empty array is fine
-// or
-const data: User[] = [{ name: 'John', email: 'john@example.com', isActive: true }];
-
-<ReusableTable allColumns={columns} data={data} viewConfig={viewConfig} />
-```
-
-**Error Message:**
-```
-[ReusableTable] "data" prop must be an array. Received: object.
-Pass an empty array [] if you have no data to display.
-```
-
----
 
 ### Quick Checklist Before Using ReusableTable
 
@@ -470,14 +544,113 @@ Pass an empty array [] if you have no data to display.
 ✅ **Theme Provider:**
 - Component is wrapped in `<ThemeProvider theme="light">` or `<ThemeProvider theme="dark">`
 
----
+## 🎨 Theming System
 
-### Still Having Issues?
+### Simple Theme Setup
 
-1. **Check the console** - Error messages are designed to be helpful and actionable
-2. **Review BasicTableExample.tsx** - See a complete working example in `examples/BasicTableExample.tsx`
-3. **Enable TypeScript strict mode** - Catches many issues at compile time
-4. **Open an issue** - [GitHub Issues](https://github.com/skars1705/advanced-reusable-table/issues)
+```tsx
+// Built-in themes
+<ThemeProvider theme="light">    {/* Clean, professional light theme */}
+<ThemeProvider theme="dark">     {/* Modern dark theme */}
+
+// Custom theme object
+const customTheme = {
+  colors: {
+    primary: '#6366f1',
+    background: '#ffffff',
+    text: '#1f2937'
+  },
+  borderRadius: '0.5rem'
+};
+
+<ThemeProvider theme={customTheme}>
+  <ReusableTable {...props} />
+</ThemeProvider>
+```
+
+### CSS Custom Properties
+
+```css
+:root {
+  --table-color-primary: #6366f1;
+  --table-color-background: #ffffff;
+  --table-color-surface: #f8fafc;
+  --table-color-text: #1f2937;
+  --table-color-border: #e5e7eb;
+  --table-border-radius: 0.375rem;
+}
+```
+
+## 🔧 Complete Feature Matrix
+
+| Feature | How It Works | Status |
+|---------|-------------|--------|
+| **Dynamic Rendering** | Configure via `column.renderCell` | ✅ Complete |
+| **Collection Data** | Configure via `column.collectionConfig` | ✅ Complete |
+| **Advanced Filtering** | Configure via `viewConfig.filterConfig` | ✅ Complete |
+| **Inline Editing** | Enable via `column.editable` + `onUpdateData` | ✅ Complete |
+| **Multi-Column Sorting** | Configure via `viewConfig.sortConfig` | ✅ Complete |
+| **Grouping** | Configure via `viewConfig.groupBy` | ✅ Complete |
+| **Row Selection** | Configure via `rowSelection` prop | ✅ Complete |
+| **Theming** | Configure via `ThemeProvider` | ✅ Complete |
+| **Accessibility** | WCAG 2.1 AA compliant | ✅ Complete |
+| **TypeScript** | Full type safety and IntelliSense | ✅ Complete |
+| **Performance** | Optimized for 1000+ rows | ✅ Complete |
+
+## 📊 Bundle Size & Performance
+
+**Lightweight & Fast** - Only pay for what you use with full tree-shaking support:
+
+| Import | Gzipped Size | Tree Shakeable | Use Case |
+|--------|--------------|----------------|----------|
+| Core Table | **~15KB** | ✅ Yes | Basic tables & sorting |
+| + Collections | **~8KB** | ✅ Yes | Checkboxes, chips, tags |
+| + All Features | **~28KB** | ✅ Yes | Full enterprise features |
+
+**Performance Benchmarks** (tested with React 18 & 19):
+- ✅ **1000+ rows** with smooth scrolling
+- ✅ **Sub-100ms** filter/sort operations
+- ✅ **<50ms** column rendering
+- ✅ **Zero layout shift** with optimized re-renders
+- ✅ **Mobile optimized** with touch-friendly interactions
+
+## 🏗️ Architecture & Design
+
+Built with modern React patterns and enterprise requirements:
+
+- **🔧 Functional Components** with comprehensive hooks
+- **📘 TypeScript** for complete type safety
+- **🧩 Composition** over inheritance patterns
+- **⚡ Performance** optimizations with React.memo and useMemo
+- **♿ Accessibility** built-in from the ground up (WCAG 2.1 AA)
+- **🧪 Testable** architecture with comprehensive test coverage
+- **📱 Responsive** mobile-first design
+- **🎨 Themeable** via CSS custom properties
+
+## 🌍 Browser Support
+
+- **Modern Browsers**: Chrome 90+, Firefox 88+, Safari 14+, Edge 90+
+- **React**: 18.0+ or 19.0+
+- **TypeScript**: 4.5+ (recommended but not required)
+- **Node.js**: 16+ for development
+
+## 🔄 Migration & Alternatives
+
+**Why developers are switching to this table:**
+
+| From Library | Advantages | Migration Effort |
+|-------------|-----------|------------------|
+| **react-table** | ✅ Dynamic rendering ✅ Collections ✅ Simpler API | 🟢 **Easy** - Similar patterns |
+| **Ant Design Table** | ✅ Better TypeScript ✅ Lighter bundle ✅ Collection types | 🟡 **Medium** - Different API |
+| **Material-UI DataGrid** | ✅ No license fees ✅ Better accessibility ✅ Simpler API | 🟡 **Medium** - Worth the switch |
+| **AG Grid Community** | ✅ No restrictions ✅ Modern React patterns ✅ Dynamic content | 🟢 **Easy** - Feature parity |
+
+**What makes this table special:**
+- 🎯 **Unique Features** - Dynamic cell rendering and collection types not found elsewhere
+- 🪶 **Lightweight** - 28KB total vs 200KB+ for comparable enterprise solutions
+- ♿ **Accessibility First** - WCAG 2.1 AA compliance built-in, not an afterthought
+- 🔧 **Modern React** - Hooks-first design with React 18/19 support
+- 🎨 **Simple API** - Configure everything through 5 props, not dozens
 
 ## 📚 Complete Documentation
 
@@ -509,182 +682,15 @@ Pass an empty array [] if you have no data to display.
 - **[Editable Table](./docs/examples/editable-table.md)** - Full CRUD operations
 - **[Process Plans](./docs/examples/process-plans.md)** - Dynamic content showcase
 
-## 🚀 v1.0.6 API Highlights
-
-### New String Theme Support
-```tsx
-// Simple string themes
-<ThemeProvider theme="light">   {/* Built-in light theme */}
-<ThemeProvider theme="dark">    {/* Built-in dark theme */}
-
-// Still supports custom theme objects
-<ThemeProvider theme={{ colors: { primary: '#6366f1' } }}>
-```
-
-### Enhanced Column Configuration  
-```tsx
-{
-  header: 'Status',
-  accessor: 'status',
-  filterType: 'select',        // New: explicit filter type
-  dataType: 'collection',      // Determines data handling
-  collectionConfig: {
-    type: 'chips',             // New: friendly aliases
-    // Also supports: 'tags', 'checkboxes', 'radios'
-  }
-}
-```
-
-### Simplified Row Selection
-```tsx
-// New v1.0.6 format
-const rowSelection = {
-  enabled: true,
-  mode: 'multiple',            // 'single' | 'multiple' | 'none'
-  onSelectionChange: (rows) => console.log(rows)
-};
-
-// Enhanced hook
-const { selectedRows, selectRow, clearSelection } = useTableSelection();
-```
-
-### Collection Type Aliases
-```tsx
-// All these work the same way:
-type: 'checkboxes'  // → normalizes to 'checkbox'
-type: 'chips'       // → normalizes to 'chip' 
-type: 'tags'        // → normalizes to 'tag'
-```
-
-## 🔧 Complete Feature Matrix
-
-| Feature | Description | v1.0.6 Status |
-|---------|-------------|---------------|
-| **String Themes** | `theme="light"` or `theme="dark"` | 🆕 **New** |
-| **Filter Types** | Explicit `filterType` configuration | 🆕 **Enhanced** |
-| **Collection Aliases** | Friendly type names like 'chips', 'tags' | 🆕 **New** |
-| **Row Selection** | Simplified configuration format | 🆕 **Improved** |
-| **Dynamic Rendering** | Same column, different content types | ✅ Complete |
-| **Collection Data** | Checkboxes, radios, chips, tags | ✅ Complete |
-| **Advanced Filtering** | Type-aware filters with 15+ operators | ✅ Complete |
-| **Inline Editing** | Double-click editing with validation | ✅ Complete |
-| **Multi-Column Sorting** | Sort by multiple columns | ✅ Complete |
-| **Grouping** | Multi-level grouping with expand/collapse | ✅ Complete |
-| **Accessibility** | WCAG 2.1 AA compliant | ✅ Complete |
-| **TypeScript** | Full type safety and IntelliSense | ✅ Complete |
-| **Performance** | Optimized for 1000+ rows | ✅ Complete |
-
-## 🎨 Theming System
-
-### v1.0.6: Simplified Theme Setup
-
-```tsx
-// New: String themes for instant setup
-<ThemeProvider theme="light">    {/* Clean, professional light theme */}
-<ThemeProvider theme="dark">     {/* Modern dark theme */}
-
-// Advanced: Custom theme objects (as before)
-const customTheme = {
-  colors: {
-    primary: '#6366f1',
-    background: '#ffffff',
-    text: '#1f2937'
-  },
-  borderRadius: '0.5rem'
-};
-
-<ThemeProvider theme={customTheme}>
-  <ReusableTable {...props} />
-</ThemeProvider>
-```
-
-### CSS Custom Properties
-
-```css
-:root {
-  --table-color-primary: #6366f1;
-  --table-color-background: #ffffff;
-  --table-color-surface: #f8fafc;
-  --table-color-text: #1f2937;
-  --table-color-border: #e5e7eb;
-  --table-border-radius: 0.375rem;
-}
-```
-
-## 📊 Bundle Size & Performance
-
-**Lightweight & Fast** - Only pay for what you use with full tree-shaking support:
-
-| Import | Gzipped Size | Tree Shakeable | Use Case |
-|--------|--------------|----------------|----------|
-| Core Table | **~15KB** | ✅ Yes | Basic tables & sorting |
-| + Collections | **~8KB** | ✅ Yes | Checkboxes, chips, tags |
-| + All Features | **~28KB** | ✅ Yes | Full enterprise features |
-
-**Performance Benchmarks** (tested with React 18 & 19):
-- ✅ **1000+ rows** with smooth scrolling
-- ✅ **Sub-100ms** filter/sort operations  
-- ✅ **<50ms** column rendering
-- ✅ **Zero layout shift** with optimized re-renders
-- ✅ **Mobile optimized** with touch-friendly interactions
-
-## 🏗️ Architecture & Design
-
-Built with modern React patterns and enterprise requirements:
-
-- **🔧 Functional Components** with comprehensive hooks
-- **📘 TypeScript** for complete type safety
-- **🧩 Composition** over inheritance patterns
-- **⚡ Performance** optimizations with React.memo and useMemo
-- **♿ Accessibility** built-in from the ground up (WCAG 2.1 AA)
-- **🧪 Testable** architecture with comprehensive test coverage
-- **📱 Responsive** mobile-first design
-- **🎨 Themeable** via CSS custom properties
-
-## 🌍 Browser Support
-
-- **Modern Browsers**: Chrome 90+, Firefox 88+, Safari 14+, Edge 90+
-- **React**: 18.0+ or 19.0+ 
-- **TypeScript**: 4.5+ (recommended but not required)
-- **Node.js**: 16+ for development
-
-## 🔄 Migration & Alternatives
-
-**Why developers are switching to v1.0.6:**
-
-| From Library | v1.0.6 Advantages | Migration Effort |
-|-------------|------------------|------------------|
-| **react-table** | ✅ Dynamic rendering ✅ Collections ✅ String themes | 🟢 **Easy** - Similar hooks |
-| **Ant Design Table** | ✅ Better TypeScript ✅ Lighter bundle ✅ Collection types | 🟡 **Medium** - Different API |
-| **Material-UI DataGrid** | ✅ No license fees ✅ Better accessibility ✅ Simpler API | 🟡 **Medium** - Worth the switch |
-| **AG Grid Community** | ✅ No restrictions ✅ Modern React patterns ✅ Dynamic content | 🟢 **Easy** - Feature parity |
-
-**What makes v1.0.6 special:**
-- 🆕 **Developer Experience** - String themes, collection aliases, simplified configuration
-- 🎯 **Unique Features** - Dynamic cell rendering and collection types not found elsewhere  
-- 🪶 **Lightweight** - 28KB total vs 200KB+ for comparable enterprise solutions
-- ♿ **Accessibility First** - WCAG 2.1 AA compliance built-in, not an afterthought
-- 🔧 **Modern React** - Hooks-first design with React 18/19 support
-
-## 🚀 Why v1.0.6 is Production Ready
-
-**✅ API Stability** - No breaking changes, full backward compatibility with enhanced features
-
-**✅ Battle Tested** - Used in production by teams managing thousands of rows daily
-
-**✅ Developer Focused** - Built by developers who understand real-world table needs
-
-**✅ Future Proof** - React 18/19 support, modern patterns, ongoing maintenance
-
 ## 🤝 Contributing & Support
 
 We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md) for details on development setup, testing, and PR guidelines.
 
 **Need Help?**
-- 📖 [Complete Documentation](./docs/) - Comprehensive guides and API reference  
+- 📖 [Complete Documentation](./docs/) - Comprehensive guides and API reference
 - 💬 [GitHub Issues](https://github.com/skars1705/advanced-reusable-table/issues) - Bug reports and feature requests
 - 📚 [Interactive Examples](./examples/) - Live demos showcasing all features
-- 📋 [Changelog](./CHANGELOG.md) - v1.0.6 release notes and migration guide
+- 📋 [Changelog](./CHANGELOG.md) - Release notes and migration guides
 
 ## 📄 License
 

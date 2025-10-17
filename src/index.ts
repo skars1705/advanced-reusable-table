@@ -59,14 +59,24 @@ export type {
   TagCollectionConfig,
   // Dynamic cell rendering types
   CellRenderContext,
-  CellRenderDecision
+  CellRenderDecision,
+  // Additional collection and rendering types
+  CollectionInputMode,
+  CollectionViewDisplayMode,
+  BaseCollectionConfig,
+  // Type inference helpers
+  ColumnAccessor,
+  ExtractAccessors,
+  ColumnArray,
+  TypedViewConfiguration
 } from './types';
 
 // Export operator labels
 export {
   StringOperatorLabels,
   NumberOperatorLabels,
-  DateOperatorLabels
+  DateOperatorLabels,
+  CollectionOperatorLabels
 } from './types';
 
 // Export icons (in case users want to customize)

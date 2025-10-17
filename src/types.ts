@@ -195,10 +195,12 @@ export interface CellRenderDecision {
   editable?: boolean;
 }
 
-// Updated Column type to include dataType for type-specific filtering
-export interface Column<T> {
+// Updated Column type with improved type inference for accessor
+// The generic parameter K extends keyof T captures the specific accessor key
+// This enables full autocomplete and eliminates the need for type assertions
+export interface Column<T, K extends keyof T = keyof T> {
   header: string;
-  accessor: keyof T;
+  accessor: K;
   sortable?: boolean;
   filterable?: boolean;
   filterType?: 'text' | 'select' | 'date' | 'number' | 'boolean' | 'collection'; // NEW: Filter type configuration
@@ -211,10 +213,35 @@ export interface Column<T> {
   cellType?: 'checkbox' | 'toggle';
   groupable?: boolean;
   align?: 'left' | 'center' | 'right';
-  
+
   // Dynamic cell rendering function
   renderCell?: (context: CellRenderContext<T>) => CellRenderDecision | React.ReactNode;
 }
+
+// Helper type to extract accessor keys from a column array
+// This is useful for validating ViewConfiguration keys against actual columns
+export type ColumnAccessor<T, C> = C extends Column<T, infer K> ? K : never;
+
+// Helper type to create a union of all accessor keys from an array of columns
+// Example: ExtractAccessors<User, typeof userColumns> = 'id' | 'name' | 'email' | ...
+export type ExtractAccessors<T, Cols extends readonly Column<T, any>[]> = {
+  [K in keyof Cols]: Cols[K] extends Column<T, infer A> ? A : never;
+}[number];
+
+// Utility type for defining strongly-typed column arrays
+// Use with 'as const' for best type inference
+export type ColumnArray<T> = readonly Column<T, keyof T>[];
+
+// Helper type for creating type-safe ViewConfiguration based on available columns
+// This ensures visibleColumns, groupBy, etc. only reference actual column accessors
+export type TypedViewConfiguration<T, Cols extends readonly Column<T, any>[]> = Omit<
+  ViewConfiguration<T>,
+  'visibleColumns' | 'groupBy' | 'groupByKeys'
+> & {
+  visibleColumns?: ExtractAccessors<T, Cols>[];
+  groupBy?: ExtractAccessors<T, Cols>[];
+  groupByKeys?: ExtractAccessors<T, Cols>[];
+};
 
 // New type for a group header row, supporting nesting
 export interface GroupHeaderRow<T> {
@@ -231,18 +258,18 @@ export type DisplayRow<T> = T | GroupHeaderRow<T>;
 
 // New interface for saved table views
 export interface ViewConfiguration<T> {
-  id: string;
-  name: string;
+  id?: string;
+  name?: string;
   // Defines which columns are visible and in what order
-  visibleColumns: (keyof T)[];
+  visibleColumns?: (keyof T)[];
   // Defines the multi-level grouping and order
-  groupBy: (keyof T)[];
+  groupBy?: (keyof T)[];
   // NEW: Alternative name for groupBy for API compatibility
   groupByKeys?: (keyof T)[];
   // Defines the default sorting for the view
-  sortConfig: SortConfig<T>[];
+  sortConfig?: SortConfig<T>[];
   // Defines the default filters for the view
-  filterConfig: FilterConfig<T>[];
+  filterConfig?: FilterConfig<T>[];
 }
 
 // Row selection types

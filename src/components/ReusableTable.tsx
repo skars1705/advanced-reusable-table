@@ -24,10 +24,27 @@ type RowSelectionProp<T> =
 interface ReusableTableProps<T extends object> {
   allColumns: Column<T>[];
   data: T[];
-  viewConfig: ViewConfiguration<T>;
+  viewConfig?: ViewConfiguration<T>;
   onUpdateData?: (rowIndex: number, columnId: keyof T, value: any) => void;
   rowSelection?: RowSelectionProp<T>;
 }
+
+/**
+ * Helper function to create a default ViewConfiguration from column definitions.
+ * Extracts all column accessor keys and creates a sensible default view.
+ */
+const createDefaultViewConfig = <T extends object>(
+  allColumns: Column<T>[]
+): ViewConfiguration<T> => {
+  return {
+    id: 'default-view',
+    name: 'Default View',
+    visibleColumns: allColumns.map(col => col.accessor),
+    groupBy: [],
+    sortConfig: [],
+    filterConfig: [],
+  };
+};
 
 const SortIndicator = ({ direction, sortOrder }: { direction?: 'ascending' | 'descending', sortOrder?: number }) => {
     return (
@@ -713,7 +730,7 @@ const isNewRowSelectionFormat = (rowSelection: any): rowSelection is RowSelectio
 export const ReusableTable = <T extends object>({
   allColumns,
   data,
-  viewConfig,
+  viewConfig: userViewConfig,
   onUpdateData,
   rowSelection,
 }: ReusableTableProps<T>) => {
@@ -770,72 +787,93 @@ export const ReusableTable = <T extends object>({
     );
   }
 
-  // Validate viewConfig
-  if (!viewConfig || typeof viewConfig !== 'object') {
-    throw new Error(
-      '[ReusableTable] "viewConfig" prop is required and must be an object. ' +
-      'Received: ' + (typeof viewConfig) + '. ' +
-      'Example: { id: "default", name: "Default View", visibleColumns: ["name"], groupBy: [], sortConfig: [], filterConfig: [] }'
-    );
-  }
+  // Create default viewConfig if not provided
+  const viewConfig = useMemo(() => {
+    if (!userViewConfig) {
+      console.warn(
+        '[ReusableTable] No viewConfig provided. Using auto-generated default with all columns visible. ' +
+        'For production use, please provide an explicit viewConfig prop.'
+      );
+      return createDefaultViewConfig(allColumns);
+    }
+    return {
+      id: userViewConfig.id || 'default-view',
+      name: userViewConfig.name || 'Default View',
+      visibleColumns: userViewConfig.visibleColumns || allColumns.map(col => col.accessor),
+      groupBy: userViewConfig.groupBy || [],
+      sortConfig: userViewConfig.sortConfig || [],
+      filterConfig: userViewConfig.filterConfig || [],
+    };
+  }, [userViewConfig, allColumns]);
 
-  if (!viewConfig.id || typeof viewConfig.id !== 'string') {
-    throw new Error(
-      '[ReusableTable] "viewConfig.id" is required and must be a string. ' +
-      'Received: ' + (typeof viewConfig.id)
-    );
-  }
+  // Validate viewConfig structure only if user provided it explicitly
+  if (userViewConfig) {
+    if (typeof userViewConfig !== 'object') {
+      throw new Error(
+        '[ReusableTable] "viewConfig" prop must be an object. ' +
+        'Received: ' + (typeof userViewConfig) + '. ' +
+        'Example: { id: "default", name: "Default View", visibleColumns: ["name"], groupBy: [], sortConfig: [], filterConfig: [] }'
+      );
+    }
 
-  if (!viewConfig.name || typeof viewConfig.name !== 'string') {
-    throw new Error(
-      '[ReusableTable] "viewConfig.name" is required and must be a string. ' +
-      'Received: ' + (typeof viewConfig.name)
-    );
-  }
+    if (userViewConfig.id && typeof userViewConfig.id !== 'string') {
+      throw new Error(
+        '[ReusableTable] "viewConfig.id" must be a string. ' +
+        'Received: ' + (typeof userViewConfig.id)
+      );
+    }
 
-  if (!Array.isArray(viewConfig.visibleColumns)) {
-    throw new Error(
-      '[ReusableTable] "viewConfig.visibleColumns" must be an array of column accessors. ' +
-      'Received: ' + (typeof viewConfig.visibleColumns) + '. ' +
-      'Example: ["name", "email", "status"]'
-    );
-  }
+    if (userViewConfig.name && typeof userViewConfig.name !== 'string') {
+      throw new Error(
+        '[ReusableTable] "viewConfig.name" must be a string. ' +
+        'Received: ' + (typeof userViewConfig.name)
+      );
+    }
 
-  if (viewConfig.visibleColumns.length === 0) {
-    throw new Error(
-      '[ReusableTable] "viewConfig.visibleColumns" must contain at least one column accessor. ' +
-      'Received an empty array. At least one column must be visible.'
-    );
-  }
+    if (userViewConfig.visibleColumns && !Array.isArray(userViewConfig.visibleColumns)) {
+      throw new Error(
+        '[ReusableTable] "viewConfig.visibleColumns" must be an array of column accessors. ' +
+        'Received: ' + (typeof userViewConfig.visibleColumns) + '. ' +
+        'Example: ["name", "email", "status"]'
+      );
+    }
 
-  // Validate that groupBy, sortConfig, filterConfig exist (can be empty arrays)
-  if (!Array.isArray(viewConfig.groupBy)) {
-    throw new Error(
-      '[ReusableTable] "viewConfig.groupBy" must be an array. ' +
-      'Received: ' + (typeof viewConfig.groupBy) + '. ' +
-      'Pass an empty array [] if you do not want grouping.'
-    );
-  }
+    if (userViewConfig.visibleColumns && userViewConfig.visibleColumns.length === 0) {
+      throw new Error(
+        '[ReusableTable] "viewConfig.visibleColumns" must contain at least one column accessor. ' +
+        'Received an empty array. At least one column must be visible.'
+      );
+    }
 
-  if (!Array.isArray(viewConfig.sortConfig)) {
-    throw new Error(
-      '[ReusableTable] "viewConfig.sortConfig" must be an array. ' +
-      'Received: ' + (typeof viewConfig.sortConfig) + '. ' +
-      'Pass an empty array [] for no initial sorting.'
-    );
-  }
+    // Validate that groupBy, sortConfig, filterConfig are arrays if provided
+    if (userViewConfig.groupBy && !Array.isArray(userViewConfig.groupBy)) {
+      throw new Error(
+        '[ReusableTable] "viewConfig.groupBy" must be an array. ' +
+        'Received: ' + (typeof userViewConfig.groupBy) + '. ' +
+        'Pass an empty array [] if you do not want grouping.'
+      );
+    }
 
-  if (!Array.isArray(viewConfig.filterConfig)) {
-    throw new Error(
-      '[ReusableTable] "viewConfig.filterConfig" must be an array. ' +
-      'Received: ' + (typeof viewConfig.filterConfig) + '. ' +
-      'Pass an empty array [] for no initial filters.'
-    );
+    if (userViewConfig.sortConfig && !Array.isArray(userViewConfig.sortConfig)) {
+      throw new Error(
+        '[ReusableTable] "viewConfig.sortConfig" must be an array. ' +
+        'Received: ' + (typeof userViewConfig.sortConfig) + '. ' +
+        'Pass an empty array [] for no initial sorting.'
+      );
+    }
+
+    if (userViewConfig.filterConfig && !Array.isArray(userViewConfig.filterConfig)) {
+      throw new Error(
+        '[ReusableTable] "viewConfig.filterConfig" must be an array. ' +
+        'Received: ' + (typeof userViewConfig.filterConfig) + '. ' +
+        'Pass an empty array [] for no initial filters.'
+      );
+    }
   }
 
   // Validate that all visibleColumns exist in allColumns
   const columnAccessors = new Set(allColumns.map(c => c.accessor));
-  const missingColumns = viewConfig.visibleColumns.filter(key => !columnAccessors.has(key));
+  const missingColumns = viewConfig.visibleColumns?.filter(key => !columnAccessors.has(key)) || [];
 
   if (missingColumns.length > 0) {
     throw new Error(
@@ -848,8 +886,9 @@ export const ReusableTable = <T extends object>({
 
   const displayedColumns = useMemo(() => {
     const columnMap = new Map(allColumns.map(c => [c.accessor, c]));
+    const visibleColumnKeys = viewConfig.visibleColumns || allColumns.map(col => col.accessor);
     // Map and filter in one pass - only keep columns that exist in the map
-    return viewConfig.visibleColumns
+    return visibleColumnKeys
       .map(key => columnMap.get(key))
       .filter((col): col is Column<T> => col !== undefined);
   }, [allColumns, viewConfig.visibleColumns]);
@@ -893,25 +932,25 @@ export const ReusableTable = <T extends object>({
     return true; // Old format assumes enabled
   }, [rowSelection]);
 
-  const { 
-    paginatedItems, 
-    originalItems, 
-    handleSort, 
-    handleFilterChange, 
-    getSortDirection, 
-    getSortOrder, 
-    filters, 
-    clearFilters, 
+  const {
+    paginatedItems,
+    originalItems,
+    handleSort,
+    handleFilterChange,
+    getSortDirection,
+    getSortOrder,
+    filters,
+    clearFilters,
     pagination,
     toggleGroup,
     collapsedGroups,
   } = useTable<T>({
     data,
     allColumns,
-    initialSort: viewConfig.sortConfig,
-    initialFilters: viewConfig.filterConfig,
+    initialSort: viewConfig.sortConfig || [],
+    initialFilters: viewConfig.filterConfig || [],
     initialPageSize: 10,
-    groupByKeys: viewConfig.groupBy,
+    groupByKeys: viewConfig.groupBy || [],
   });
 
   const [exportLocale, setExportLocale] = useState('default');
